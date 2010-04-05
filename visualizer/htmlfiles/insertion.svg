@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="36pt" height="215pt" viewBox="0 0 36 215"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<g id="figure1">
+<g id="axes1">
+<g id="line2d1">
+<defs>
+  <clipPath id="p7a1f32b4ce76cca1714223c302fee8aa">
+<rect x="4.500000" y="1.635034" width="27.900000" height="220.299264"/>
+  </clipPath>
+</defs><path style="fill: none; stroke: #0000ff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#p7a1f32b4ce76cca1714223c302fee8aa)" d="M32.400000 1.635034L32.400000 13.873882L20.193750 26.112730
+L21.937500 38.351578L4.500000 50.590426L7.987500 62.829274
+L14.962500 75.068122L14.962500 87.306970L32.400000 99.545818
+L25.425000 111.784666L14.962500 124.023514L32.400000 136.262362
+L14.962500 148.501210L32.400000 160.740058L32.400000 172.978906
+L32.400000 185.217754L32.400000 197.456602L32.400000 209.695450"/>
+</g>
+</g>
+</g>
+</svg>
