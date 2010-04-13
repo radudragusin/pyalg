@@ -2,6 +2,8 @@
 
 import os, re, shutil
 import numpy
+import matplotlib
+matplotlib.use('QT4Agg')
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transf
 
@@ -65,16 +67,16 @@ class HtmlReporter(object):
         fhtml = open(html_filename, 'w')
         fhtml.write(html)
         fhtml.close()
+        
+        return html_filename
 
 
 # Helpers for templates and generating HTML
 
 def plotCounts(plotvalues,imgfilename,lineno,imagetype):
+	
 	il = 16.6/100
-	if lineno%2 == 0:
-		a = .28 * lineno
-	else:
-		a = .28 * lineno
+	a = .28 * lineno
 	b = .57 * a
 	c = .43 * a
 	fig = plt.figure(figsize=(0.5,(lineno+a)*il),frameon=False)
@@ -83,7 +85,7 @@ def plotCounts(plotvalues,imgfilename,lineno,imagetype):
 	ax.invert_yaxis()
 	ax.invert_xaxis()
 	ax.set_axis_off()
-	ax.fill(plotvalues,range(0,len(plotvalues)), 'r')
+	ax.plot(plotvalues,range(0,len(plotvalues)), 'r')
 	fig.savefig(imgfilename,orientation='portrait',format=imagetype,transparent=True,bbox_inches=bbox)
 	
 
