@@ -3,6 +3,7 @@ import sys
 import os
 
 import html
+import instrTracer
 
 def tracer(filename, funcname, arguments):
 		#filename = 'insertion2.py'
@@ -31,9 +32,11 @@ def tracer(filename, funcname, arguments):
 		for count in counts:
 			if p in count:
 				linecounts[count[1]] = counts[count]
+				
+		flowarray = instrTracer.getAlgorithmFlow(filename,'flow.txt')
 
 		ht = html.HtmlReporter()
-		return ht.html_file(filename,modname,linecounts)
+		return ht.html_file(filename,modname,linecounts,flowarray)
 
 if __name__ == "__main__":
 	filename = 'insertion.py'

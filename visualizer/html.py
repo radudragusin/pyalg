@@ -17,7 +17,7 @@ class HtmlReporter(object):
         self.source_tmpl = Templite(open("htmlfiles/pyfile.html").read(), globals())
 
 
-    def html_file(self, pyfile, modname, linecounts, imagetype='svg'):
+    def html_file(self, pyfile, modname, linecounts, flowarray, imagetype='svg'):
         """Generate an HTML file for one source file."""
 
         source = open(pyfile).read()
@@ -60,6 +60,7 @@ class HtmlReporter(object):
             
         imagefile = modname + '.' + imagetype
         plotCounts(plotvalues,os.path.join(htmldir, imagefile),lineno, imagetype)
+        algflow = flowarray
 
         # Write the HTML page for this file.
         html_filename = os.path.join(htmldir, os.path.splitext(os.path.basename(pyfile))[0] + ".html")

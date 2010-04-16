@@ -222,3 +222,7 @@ td.text {
 #index tr.file:hover {
     background: #eeeeee;
     }
+
+.highlight { 
+	background-color: yellow 
+	}
