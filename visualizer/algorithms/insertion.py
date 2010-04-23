@@ -7,6 +7,4 @@ def InsertionSort(A):
                 j = j - 1
             else:
                 break
-            if False:
-		pass
             pass
