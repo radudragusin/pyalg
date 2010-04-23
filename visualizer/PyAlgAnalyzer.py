@@ -1,7 +1,8 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import os
+import os, os.path
 import platform
+import shutil
 
 import ui_pyalg
 import tracer
@@ -33,7 +34,9 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.newAlgArgUpButton, SIGNAL("clicked()"), self.moveUpNewAlgArgument)
 		self.connect(self.newAlgArgDownButton, SIGNAL("clicked()"), self.moveDownNewAlgArgument)
 		self.connect(self.newAlgArgDelButton, SIGNAL("clicked()"), self.deleteNewAlgArgument)
+		self.connect(self.newAlgAddButton, SIGNAL("clicked()"), self.addNewAlg)
 		
+		self.connect(self.deleteAction, SIGNAL("triggered()"), self.deleteAlgorithm)
 		self.connect(self.aboutAction, SIGNAL("triggered()"), self.showAboutWindow)
 		self.connect(self.newAction, SIGNAL("triggered()"), self.showNewAlgWindow)
 		
@@ -52,6 +55,8 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.listInputLineEdit.hide()
 		self.listSortButton.setEnabled(False)
 		
+		self.confFilePath = 'algorithms/alg.conf'
+		
 		self.updateAlgTree()
 		
 		self.newAlgDockWidget.hide()
@@ -65,15 +70,16 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.newAlgAddArgButton.setEnabled(False)
 		self.newAlgArgOpGroupBox.setEnabled(False)
 		
-	def updateAlgTree(self,confFilePath='algorithms/alg.conf',sep=';'):
+	def updateAlgTree(self,sep=';'):
 		"""Read the algorithms configuration file which includes the 
 		information necessary for populating the algorithm tree view. 
 		Update the tree view based on the information from the file.
 		"""
-		lines = open(confFilePath).readlines()
+		lines = open(self.confFilePath).readlines()
 		self.algConf = []
 		for line in lines:
-			self.algConf.append(line.strip('\n').split(sep))
+			if line !='\n':
+				self.algConf.append(line.strip('\n').split(sep))
 		
 		self.algTree.clear()
 		
@@ -170,11 +176,6 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 	
 	### NEW ALGORITHM DOCK WIDGET FUNCTIONALITIES
 	
-	def showNewAlgWindow(self):
-		"""Open a pop-up window for adding a new algorithm to the existing library.
-		"""
-		self.newAlgDockWidget.show()
-	
 	def updateNewAlgPath(self):
 		"""Opens a file browsing window for selection of a Python file, and 
 		updates the corresponding line edit for the path.
@@ -212,27 +213,34 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		return functions
 		
 	def getListOfFuncArgs(self):
-		"""Return the list of available function arguments - needed for 
+		"""Return the list of available function arguments types - needed for 
 		populating the list view of the new algorithm functionality."""
 		return ['List','Graph','Tree','Int']
 		
 	def selectNewAlgArgument(self, index):
-		"""Store the selected argument for the new function/algorithm and
-		enable the 'add argument' button."""
+		"""Store the selected argument type from the available list of 
+		arguments and enable the 'add argument' button."""
 		self.newAlgAddArgButton.setEnabled(True)
 		self.selectedArg = index.data().toString()
 		
 	def addNewAlgArgument(self):
+		"""Add the currently selected argument type to the list of
+		arguments for the new algorithm."""
 		currList = self.newAlgArgsModel.stringList()
 		currList.append(self.selectedArg)
 		self.newAlgArgsModel = QStringListModel(QStringList(currList))
 		self.newAlgArgsListView2.setModel(self.newAlgArgsModel)
 		
 	def selectModifNewAlgArgument(self, index):
+		"""Store the selected argument type for the new algorithm and
+		enable the buttons for editing the order of arguments.
+		"""
 		self.newAlgArgOpGroupBox.setEnabled(True)
 		self.selectedModifArgIndex = index.row()
 		
 	def moveUpNewAlgArgument(self):
+		"""Move one position up the selected argument type.
+		"""
 		currList = self.newAlgArgsModel.stringList()
 		if self.selectedModifArgIndex > 0:
 			currArg = currList.takeAt(self.selectedModifArgIndex)
@@ -243,6 +251,8 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			self.selectedModifArgIndex = -1
 	
 	def moveDownNewAlgArgument(self):
+		"""Move one position down the selected argument type.
+		"""
 		currList = self.newAlgArgsModel.stringList()
 		if -1 < self.selectedModifArgIndex < len(currList)-1:
 			currArg = currList.takeAt(self.selectedModifArgIndex)
@@ -253,6 +263,8 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			self.selectedModifArgIndex = -1	
 			
 	def deleteNewAlgArgument(self):
+		"""Delete the selected argument type.
+		"""
 		currList = self.newAlgArgsModel.stringList()
 		if self.selectedModifArgIndex != -1:
 			currList.takeAt(self.selectedModifArgIndex)
@@ -261,6 +273,35 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			self.newAlgArgOpGroupBox.setEnabled(False)
 			self.selectedModifArgIndex = -1	
 		
+	def addNewAlg(self):
+		"""Add the new algorithm to the library of available algorithms 
+		(if all required input is correct).
+		"""
+		fileName = str(self.pathLineEdit.text())
+		funcName = str(self.newAlgFuncComboBox.currentText()).split('(')[0]
+		algName = str(self.newAlgNameLineEdit.text())
+		parentName = str(self.newAlgTypeComboBox.currentText())
+		arguments = [str(arg) for arg in self.newAlgArgsModel.stringList()]
+
+		if algName != "" and len([i for i in range(len(self.algConf)) if algName in self.algConf[i][1]])==0:
+			newPath = os.path.join(os.path.join(os.getcwd(),'algorithms'),os.path.basename(fileName))
+			while os.path.exists(newPath):
+				newPath = newPath[:-3] + '0' + newPath[-3:]
+			shutil.copyfile(fileName, newPath)
+			self.algConf.append([parentName,algName,os.path.basename(newPath),funcName,str(arguments)])
+			self.saveAlgConf()
+			box = QMessageBox(QMessageBox.Information , "Success", "OK. Algorithm added.")
+			box.exec_()
+			self.newAlgDockWidget.hide()
+		else:
+			box = QMessageBox(QMessageBox.Warning, "Warning", "Algorithm name empty or already used.")
+			box.exec_()
+	
+	def saveAlgConf(self):
+		with open(self.confFilePath,'w') as file:
+			for i in range(len(self.algConf)):
+				file.write(self.algConf[i][0]+';'+self.algConf[i][1]+';'+self.algConf[i][2]+';'+self.algConf[i][3]+';'+self.algConf[i][4]+'\n')
+		self.updateAlgTree()
 	
 	### MENU FUNCTIONALITIES
 	
@@ -277,6 +318,33 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			<p>Python %s -Qt %s -PyQt %s on %s"""
 			% (__version__,platform.python_version(),QT_VERSION_STR,PYQT_VERSION_STR,platform.system()))
 	
+	def showNewAlgWindow(self):
+		"""Open a pop-up window for adding a new algorithm to the existing library.
+		"""
+		self.newAlgDockWidget.show()
+
+	def deleteAlgorithm(self):
+		"""Delete from the library the selected algorithm, if any.
+		"""
+		currItem = self.algTree.currentItem()
+		if currItem:
+			if currItem.childCount() == 0:
+				currAlgName = str(self.algTree.currentItem().text(0))
+				reply = QMessageBox.question(self, "Last chance to change your mind", 
+				"Are you sure you want to permanently delete "+currAlgName+" from the library?",
+				QMessageBox.Yes|QMessageBox.Default, QMessageBox.No|QMessageBox.Escape)
+				if reply == QMessageBox.Yes:
+					el = [i for i in range(len(self.algConf)) if currAlgName in self.algConf[i][1]]
+					el = el[0]
+					self.algConf.pop(el)
+					self.saveAlgConf()
+			else:
+				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot delete algorithm type containing one or more algorithms.")
+				box.exec_()
+		else:
+			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
+			box.exec_()
+			
 	def closeEvent(self, event):
 		"""Called either when the Quit button or the X is pressed.
 		"""

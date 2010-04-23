@@ -45,7 +45,6 @@
     <property name="title">
      <string>Options</string>
     </property>
-    <addaction name="newAction"/>
     <addaction name="quitAction"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -55,7 +54,15 @@
     <addaction name="helpAction"/>
     <addaction name="aboutAction"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="newAction"/>
+    <addaction name="deleteAction"/>
+   </widget>
    <addaction name="menuOptions"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -79,7 +86,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Algorithms</string>
+    <string>Algorithms Library</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -605,7 +612,7 @@
     <string>Help</string>
    </property>
   </action>
-  <action name="newAction">
+  <action name="action">
    <property name="text">
     <string>New...</string>
    </property>
@@ -616,6 +623,16 @@
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="deleteAction">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="newAction">
+   <property name="text">
+    <string>New...</string>
    </property>
   </action>
  </widget>

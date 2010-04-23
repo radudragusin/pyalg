@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Fri Apr 23 20:34:43 2010
+# Created: Fri Apr 23 23:41:56 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,6 +34,8 @@ class Ui_MainWindow(object):
         self.menuOptions.setObjectName("menuOptions")
         self.menuHelp = QtGui.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
+        self.menuEdit = QtGui.QMenu(self.menubar)
+        self.menuEdit.setObjectName("menuEdit")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -213,16 +215,22 @@ class Ui_MainWindow(object):
         self.aboutAction.setObjectName("aboutAction")
         self.helpAction = QtGui.QAction(MainWindow)
         self.helpAction.setObjectName("helpAction")
-        self.newAction = QtGui.QAction(MainWindow)
-        self.newAction.setObjectName("newAction")
+        self.action = QtGui.QAction(MainWindow)
+        self.action.setObjectName("action")
         self.quitAction = QtGui.QAction(MainWindow)
         self.quitAction.setMenuRole(QtGui.QAction.QuitRole)
         self.quitAction.setObjectName("quitAction")
-        self.menuOptions.addAction(self.newAction)
+        self.deleteAction = QtGui.QAction(MainWindow)
+        self.deleteAction.setObjectName("deleteAction")
+        self.newAction = QtGui.QAction(MainWindow)
+        self.newAction.setObjectName("newAction")
         self.menuOptions.addAction(self.quitAction)
         self.menuHelp.addAction(self.helpAction)
         self.menuHelp.addAction(self.aboutAction)
+        self.menuEdit.addAction(self.newAction)
+        self.menuEdit.addAction(self.deleteAction)
         self.menubar.addAction(self.menuOptions.menuAction())
+        self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -233,7 +241,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.menuOptions.setTitle(QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.algDockWidget.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Algorithms", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.algDockWidget.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Algorithms Library", None, QtGui.QApplication.UnicodeUTF8))
         self.algTree.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "1", None, QtGui.QApplication.UnicodeUTF8))
         __sortingEnabled = self.algTree.isSortingEnabled()
         self.algTree.setSortingEnabled(False)
@@ -263,7 +272,9 @@ class Ui_MainWindow(object):
         self.newAlgArgDelButton.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.aboutAction.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
         self.helpAction.setText(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
-        self.newAction.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
+        self.action.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
         self.quitAction.setText(QtGui.QApplication.translate("MainWindow", "Quit", None, QtGui.QApplication.UnicodeUTF8))
+        self.deleteAction.setText(QtGui.QApplication.translate("MainWindow", "Delete", None, QtGui.QApplication.UnicodeUTF8))
+        self.newAction.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import QtWebKit
