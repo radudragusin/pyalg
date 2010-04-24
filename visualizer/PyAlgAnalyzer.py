@@ -1,11 +1,14 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQt4.QtWebKit import QWebView
+
 import os, os.path
 import platform
 import shutil
 
-import ui_pyalg
 import tracer
+import ui_pyalg
+import wiz_pyalg
 
 __version__ = "0.0.1"
 
@@ -43,6 +46,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.argumentsAction, SIGNAL("triggered()"), self.changeArgsAlgorithm)
 		self.connect(self.aboutAction, SIGNAL("triggered()"), self.showAboutWindow)
 		self.connect(self.newAction, SIGNAL("triggered()"), self.showNewAlgWindow)
+		self.connect(self.compAction, SIGNAL("triggered()"), self.showCompareWiz)
 		
 	
 	### INITIAL SETUP
@@ -97,6 +101,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			wid = QTreeWidgetItem(None, QStringList(parent))
 			self.algTree.addTopLevelItem(wid)
 			self.algTree.expandItem(wid)
+			wid.setFlags(Qt.ItemIsEnabled)
 			u = QTreeWidget(self.algTree.itemWidget(wid,1))
 			
 			for i in range(len(self.algConf)):
@@ -176,11 +181,9 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 					box.setDetailedText(str(detail))
 					box.exec_()
 			else:
-				box = QMessageBox(QMessageBox.Warning, "Warning", "Input must be a non-empty list. Try something similar to: [3,1,4,9,5]")
-				box.exec_()
+				QMessageBox(QMessageBox.Warning, "Warning", "Input must be a non-empty list. Try something similar to: [3,1,4,9,5]").exec_()
 		except(NameError, SyntaxError):
-			box = QMessageBox(QMessageBox.Warning, "Warning", "Input not a list. Try something similar to: [3,1,4,9,5]")
-			box.exec_()
+			QMessageBox(QMessageBox.Warning, "Warning", "Input not a list. Try something similar to: [3,1,4,9,5]").exec_()
 
 	
 	### NEW ALGORITHM DOCK WIDGET FUNCTIONALITIES
@@ -299,12 +302,10 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			shutil.copyfile(fileName, newPath)
 			self.algConf.append([parentName,algName,os.path.basename(newPath),funcName,str(arguments)])
 			self.saveAlgConf()
-			box = QMessageBox(QMessageBox.Information , "Success", "OK. Algorithm added.")
-			box.exec_()
+			QMessageBox(QMessageBox.Information , "Success", "OK. Algorithm added.").exec_()
 			self.newAlgDockWidget.hide()
 		else:
-			box = QMessageBox(QMessageBox.Warning, "Warning", "Algorithm name empty or already used.")
-			box.exec_()
+			QMessageBox(QMessageBox.Warning, "Warning", "Algorithm name empty or already used.").exec_()
 	
 	def saveAlgConf(self):
 		with open(self.confFilePath,'w') as file:
@@ -317,7 +318,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 	def showAboutWindow(self):
 		"""Open a message box containing appplication information.
 		"""
-		QMessageBox.about(self, "About PyAlgLib",
+		QMessageBox.information(self, "About PyAlgLib",
 			"""<b>PyAlgLib</b> v %s
 			<p>An algorithms learning platform in Python.
 			<p><a href="http://code.google.com/p/pyalg">PyAlgLib Web Site</a>
@@ -366,11 +367,9 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 						box.setDetailedText(str(detail))
 						box.exec_()
 			else:
-				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot delete algorithm type containing one or more algorithms.")
-				box.exec_()
+				QMessageBox(QMessageBox.Warning, "Warning", "Cannot delete algorithm type containing one or more algorithms.").exec_()
 		else:
-			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
-			box.exec_()
+			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()
 			
 	def renameAlgorithm(self):
 		"""Rename the selected algorithm from the library, if any selected.
@@ -387,14 +386,11 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 						self.algConf[el][1] = newAlgName
 						self.saveAlgConf()
 					else:
-						box = QMessageBox(QMessageBox.Warning, "Warning", "Name already used.")
-						box.exec_()
+						QMessageBox(QMessageBox.Warning, "Warning", "Name already used.").exec_()
 			else:
-				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot rename algorithm type containing one or more algorithms.")
-				box.exec_()
+				QMessageBox(QMessageBox.Warning, "Warning", "Cannot rename algorithm type containing one or more algorithms.").exec_()
 		else:
-			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
-			box.exec_()	
+			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()	
 			
 	def changeArgsAlgorithm(self):
 		"""Edit the arguments list of the selected algorithm, if any.
@@ -412,17 +408,112 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 					self.algConf[el][-1] = newAlgArgs
 					self.saveAlgConf()
 			else:
-				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot add arguments to algorithm type.")
-				box.exec_()
+				QMessageBox(QMessageBox.Warning, "Warning", "Cannot add arguments to algorithm type.").exec_()
 		else:
-			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
-			box.exec_()					
+			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()					
+			
+	def showCompareWiz(self):
+		wizard = PyAlgWizard(self)
+		wizard.exec_()
 			
 	def closeEvent(self, event):
 		"""Called either when the Quit button or the X is pressed.
 		"""
 		event.accept()
  
+class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
+	def __init__(self,parent=None):
+		super(PyAlgWizard,self).__init__(parent)
+		self.setupUi(self)
+		self.parent = parent
+		self.justStarted = True
+		self.oldArguments = "!"
+		
+		self.connect(self, SIGNAL("currentIdChanged(int)"), self.updateWizPage)
+		
+	# NAVIGATION THROUGH THE WIZARD'S PAGES	
+	
+	def updateWizPage(self, id):
+		"""Connect the page updating functionality with the pages, 
+		based on the current page.
+		"""
+		if id == 1 and self.justStarted:
+			#Page 2 - Step 1
+			self.updateWizAlgTree() 
+			self.justStarted = False
+		elif id == 2:
+			#Page 3 - Step 2
+			#TO-DO: create generator
+			self.newArguments = '[1,8,9,3,0,7,2,3,4,6,5]'
+		elif id == 3:
+			#Page 4 - Step 3
+			if self.newArguments != self.oldArguments:
+				self.updateWizWebViews()
+				self.oldArguments = self.newArguments
+	
+	def validateCurrentPage(self):
+		"""Reimplementation of the validateCurrentPage()
+		The default implementation calls QtWizardPage::validatePage() on the currentPage().
+		The default implementation of QtWizardPage::validatePage() returns true.
+		"""
+		id = self.currentId()
+		if id == 1:
+			#Step1: Verify that at least 2 algorithms were selected (TO-DO: verify if they are comparable)
+			if len(self.algTreeWiz.selectedItems())<=1:
+				QMessageBox(QMessageBox.Warning, "Warning", "At least two algorithms must be selected.").exec_()
+				return False
+			else:
+				self.selectedAlgorithms = [str(el.text(0)) for el in self.algTreeWiz.selectedItems()]
+		if id == 2:
+			#Step2: TO-DO: Verify that the arguments are well-formed
+			pass
+		return True
+	
+	# UPDATE INFORMATION IN THE PAGES
+	
+	def updateWizAlgTree(self):
+		""" Populate/Update the algorithms tree view from the wizard.
+		"""
+		self.algConf = self.parent.algConf
+		self.algTreeWiz.clear()
+		
+		parents = set([self.algConf[i][0] for i in range(len(self.algConf))])
+		for parent in parents:
+			wid = QTreeWidgetItem(None, QStringList(parent))
+			self.algTreeWiz.addTopLevelItem(wid)
+			self.algTreeWiz.expandItem(wid)
+			wid.setFlags(Qt.ItemIsEnabled)
+			u = QTreeWidget(self.algTreeWiz.itemWidget(wid,1))
+			
+			for i in range(len(self.algConf)):
+				if self.algConf[i][0] == parent:
+					children  = self.algConf[i][1]
+					u.addTopLevelItem(QTreeWidgetItem(wid, QStringList(children)))
+		
+	def updateWizWebViews(self):
+		"""Trace each of the selected algorithms with the given arguments and 
+		show their analysis. Dynamically create tabs for the algorithms.
+		"""
+		self.simpleAnalysisTabWidget.clear()
+		for algName in self.selectedAlgorithms:
+			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
+			filename, funcname = self.algConf[el][2], self.algConf[el][3]
+			try:
+				html_filename = tracer.tracer(filename, funcname, self.newArguments)
+				tab = QWidget()
+				verticalLayout = QVBoxLayout(tab)
+				resultWebView = QWebView(tab)
+				resultWebView.setUrl(QUrl(html_filename))
+				verticalLayout.addWidget(resultWebView)
+				self.simpleAnalysisTabWidget.addTab(tab,algName)
+			except StandardError as detail:
+				box = QMessageBox(QMessageBox.Warning, "Warning", "Invalid Code for "+algName+". Please review the code and upload it again. The Wizard will now close.")
+				box.setDetailedText(str(detail))
+				box.exec_()
+				self.close()
+				return
+
+
 if __name__ == "__main__":
 	import sys
 	app = QApplication(sys.argv)

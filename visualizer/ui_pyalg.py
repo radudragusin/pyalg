@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Sat Apr 24 11:59:07 2010
+# Created: Sat Apr 24 17:43:35 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,6 +36,8 @@ class Ui_MainWindow(object):
         self.menuHelp.setObjectName("menuHelp")
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setObjectName("menuEdit")
+        self.menuTools = QtGui.QMenu(self.menubar)
+        self.menuTools.setObjectName("menuTools")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -48,7 +50,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.algDockWidget.sizePolicy().hasHeightForWidth())
         self.algDockWidget.setSizePolicy(sizePolicy)
         self.algDockWidget.setFloating(False)
-        self.algDockWidget.setFeatures(QtGui.QDockWidget.DockWidgetFloatable|QtGui.QDockWidget.DockWidgetMovable)
+        self.algDockWidget.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         self.algDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|QtCore.Qt.RightDockWidgetArea)
         self.algDockWidget.setObjectName("algDockWidget")
         self.dockWidgetContents_2 = QtGui.QWidget()
@@ -228,6 +230,10 @@ class Ui_MainWindow(object):
         self.renameAction.setObjectName("renameAction")
         self.argumentsAction = QtGui.QAction(MainWindow)
         self.argumentsAction.setObjectName("argumentsAction")
+        self.compareAction = QtGui.QAction(MainWindow)
+        self.compareAction.setObjectName("compareAction")
+        self.compAction = QtGui.QAction(MainWindow)
+        self.compAction.setObjectName("compAction")
         self.menuOptions.addAction(self.quitAction)
         self.menuHelp.addAction(self.helpAction)
         self.menuHelp.addAction(self.aboutAction)
@@ -235,8 +241,10 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.renameAction)
         self.menuEdit.addAction(self.argumentsAction)
         self.menuEdit.addAction(self.deleteAction)
+        self.menuTools.addAction(self.compAction)
         self.menubar.addAction(self.menuOptions.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -244,10 +252,11 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "PyAlgLib", None, QtGui.QApplication.UnicodeUTF8))
         self.menuOptions.setTitle(QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.algDockWidget.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Algorithms Library", None, QtGui.QApplication.UnicodeUTF8))
         self.algTree.headerItem().setText(0, QtGui.QApplication.translate("MainWindow", "1", None, QtGui.QApplication.UnicodeUTF8))
         __sortingEnabled = self.algTree.isSortingEnabled()
@@ -284,5 +293,7 @@ class Ui_MainWindow(object):
         self.newAction.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
         self.renameAction.setText(QtGui.QApplication.translate("MainWindow", "Rename", None, QtGui.QApplication.UnicodeUTF8))
         self.argumentsAction.setText(QtGui.QApplication.translate("MainWindow", "Arguments", None, QtGui.QApplication.UnicodeUTF8))
+        self.compareAction.setText(QtGui.QApplication.translate("MainWindow", "Compare", None, QtGui.QApplication.UnicodeUTF8))
+        self.compAction.setText(QtGui.QApplication.translate("MainWindow", "Compare", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import QtWebKit
