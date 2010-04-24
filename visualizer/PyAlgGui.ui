@@ -59,6 +59,8 @@
      <string>Edit</string>
     </property>
     <addaction name="newAction"/>
+    <addaction name="renameAction"/>
+    <addaction name="argumentsAction"/>
     <addaction name="deleteAction"/>
    </widget>
    <addaction name="menuOptions"/>
@@ -633,6 +635,16 @@
   <action name="newAction">
    <property name="text">
     <string>New...</string>
+   </property>
+  </action>
+  <action name="renameAction">
+   <property name="text">
+    <string>Rename</string>
+   </property>
+  </action>
+  <action name="argumentsAction">
+   <property name="text">
+    <string>Arguments</string>
    </property>
   </action>
  </widget>

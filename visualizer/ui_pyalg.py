@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Fri Apr 23 23:41:56 2010
+# Created: Sat Apr 24 11:59:07 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -224,10 +224,16 @@ class Ui_MainWindow(object):
         self.deleteAction.setObjectName("deleteAction")
         self.newAction = QtGui.QAction(MainWindow)
         self.newAction.setObjectName("newAction")
+        self.renameAction = QtGui.QAction(MainWindow)
+        self.renameAction.setObjectName("renameAction")
+        self.argumentsAction = QtGui.QAction(MainWindow)
+        self.argumentsAction.setObjectName("argumentsAction")
         self.menuOptions.addAction(self.quitAction)
         self.menuHelp.addAction(self.helpAction)
         self.menuHelp.addAction(self.aboutAction)
         self.menuEdit.addAction(self.newAction)
+        self.menuEdit.addAction(self.renameAction)
+        self.menuEdit.addAction(self.argumentsAction)
         self.menuEdit.addAction(self.deleteAction)
         self.menubar.addAction(self.menuOptions.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -276,5 +282,7 @@ class Ui_MainWindow(object):
         self.quitAction.setText(QtGui.QApplication.translate("MainWindow", "Quit", None, QtGui.QApplication.UnicodeUTF8))
         self.deleteAction.setText(QtGui.QApplication.translate("MainWindow", "Delete", None, QtGui.QApplication.UnicodeUTF8))
         self.newAction.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
+        self.renameAction.setText(QtGui.QApplication.translate("MainWindow", "Rename", None, QtGui.QApplication.UnicodeUTF8))
+        self.argumentsAction.setText(QtGui.QApplication.translate("MainWindow", "Arguments", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import QtWebKit

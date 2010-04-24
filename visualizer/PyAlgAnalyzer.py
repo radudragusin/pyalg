@@ -36,7 +36,11 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.newAlgArgDelButton, SIGNAL("clicked()"), self.deleteNewAlgArgument)
 		self.connect(self.newAlgAddButton, SIGNAL("clicked()"), self.addNewAlg)
 		
+		self.connect(self.algTree, SIGNAL("itemSelectionChanged()"), self.disableAlgEditing)
+		
 		self.connect(self.deleteAction, SIGNAL("triggered()"), self.deleteAlgorithm)
+		self.connect(self.renameAction, SIGNAL("triggered()"), self.renameAlgorithm)
+		self.connect(self.argumentsAction, SIGNAL("triggered()"), self.changeArgsAlgorithm)
 		self.connect(self.aboutAction, SIGNAL("triggered()"), self.showAboutWindow)
 		self.connect(self.newAction, SIGNAL("triggered()"), self.showNewAlgWindow)
 		
@@ -49,6 +53,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		* hide the new algorithm uploading windows
 		* initialize the tree of available algorithms
 		* add the list of available function arguments to the new-alg functionality  
+		* disable algorithm editing menus
 		"""
 		self.algOptionsDockWidget.hide()
 		self.listSettingsGroupBox.hide()
@@ -69,6 +74,10 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.newAlgArgsListView2.setModel(self.newAlgArgsModel)
 		self.newAlgAddArgButton.setEnabled(False)
 		self.newAlgArgOpGroupBox.setEnabled(False)
+		
+		self.renameAction.setEnabled(False)
+		self.deleteAction.setEnabled(False)
+		self.argumentsAction.setEnabled(False)
 		
 	def updateAlgTree(self,sep=';'):
 		"""Read the algorithms configuration file which includes the 
@@ -279,11 +288,11 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""
 		fileName = str(self.pathLineEdit.text())
 		funcName = str(self.newAlgFuncComboBox.currentText()).split('(')[0]
-		algName = str(self.newAlgNameLineEdit.text())
+		algName = str(self.newAlgNameLineEdit.text().trimmed())
 		parentName = str(self.newAlgTypeComboBox.currentText())
 		arguments = [str(arg) for arg in self.newAlgArgsModel.stringList()]
 
-		if algName != "" and len([i for i in range(len(self.algConf)) if algName in self.algConf[i][1]])==0:
+		if algName != "" and len([i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]])==0:
 			newPath = os.path.join(os.path.join(os.getcwd(),'algorithms'),os.path.basename(fileName))
 			while os.path.exists(newPath):
 				newPath = newPath[:-3] + '0' + newPath[-3:]
@@ -323,6 +332,19 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""
 		self.newAlgDockWidget.show()
 
+	def disableAlgEditing(self):
+		"""TO-DO: Currently does not work - it should disable the algorithm editing 
+		buttons from the menu when no algorithm is selected, and vice-versa."""
+		currItem = self.algTree.currentItem()
+		if currItem:
+			self.renameAction.setEnabled(True)
+			self.deleteAction.setEnabled(True)
+			self.argumentsAction.setEnabled(True)
+		else:
+			self.renameAction.setEnabled(False)
+			self.deleteAction.setEnabled(False)
+			self.argumentsAction.setEnabled(False)
+
 	def deleteAlgorithm(self):
 		"""Delete from the library the selected algorithm, if any.
 		"""
@@ -331,19 +353,70 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			if currItem.childCount() == 0:
 				currAlgName = str(self.algTree.currentItem().text(0))
 				reply = QMessageBox.question(self, "Last chance to change your mind", 
-				"Are you sure you want to permanently delete "+currAlgName+" from the library?",
+				"Are you sure you want to permanently delete "+currAlgName+" (including the corresponding Python file) from the library?",
 				QMessageBox.Yes|QMessageBox.Default, QMessageBox.No|QMessageBox.Escape)
 				if reply == QMessageBox.Yes:
-					el = [i for i in range(len(self.algConf)) if currAlgName in self.algConf[i][1]]
-					el = el[0]
-					self.algConf.pop(el)
-					self.saveAlgConf()
+					el = [i for i in range(len(self.algConf)) if currAlgName in self.algConf[i][1]][0]
+					try:
+						os.remove(os.path.join(os.path.join(os.getcwd(),'algorithms'),self.algConf[el][2]))
+						self.algConf.pop(el)
+						self.saveAlgConf()
+					except StandardError as detail:
+						box = QMessageBox(QMessageBox.Warning, "Warning", "Error deleting algorithm.")
+						box.setDetailedText(str(detail))
+						box.exec_()
 			else:
 				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot delete algorithm type containing one or more algorithms.")
 				box.exec_()
 		else:
 			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
 			box.exec_()
+			
+	def renameAlgorithm(self):
+		"""Rename the selected algorithm from the library, if any selected.
+		"""
+		currItem = self.algTree.currentItem()
+		if currItem:
+			if currItem.childCount() == 0:
+				currAlgName = str(self.algTree.currentItem().text(0))
+				(newAlgName,reply) = QInputDialog.getText(self,"Rename","New name:",QLineEdit.Normal,currAlgName)
+				newAlgName = newAlgName.trimmed()
+				if reply and newAlgName != currAlgName:
+					if len([i for i in range(len(self.algConf)) if newAlgName in [self.algConf[i][1]]])==0:
+						el = [i for i in range(len(self.algConf)) if currAlgName in [self.algConf[i][1]]][0]
+						self.algConf[el][1] = newAlgName
+						self.saveAlgConf()
+					else:
+						box = QMessageBox(QMessageBox.Warning, "Warning", "Name already used.")
+						box.exec_()
+			else:
+				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot rename algorithm type containing one or more algorithms.")
+				box.exec_()
+		else:
+			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
+			box.exec_()	
+			
+	def changeArgsAlgorithm(self):
+		"""Edit the arguments list of the selected algorithm, if any.
+		TO-DO: verify if the list is well-formed
+		"""
+		currItem = self.algTree.currentItem()
+		if currItem:
+			if currItem.childCount() == 0:
+				currAlgName = str(self.algTree.currentItem().text(0))
+				el = [i for i in range(len(self.algConf)) if currAlgName in [self.algConf[i][1]]][0]
+				currAlgArgs = self.algConf[el][-1]
+				(newAlgArgs,reply) = QInputDialog.getText(self,"Edit Arguments","New arguments list:",QLineEdit.Normal,currAlgArgs)
+				if reply and newAlgArgs != currAlgArgs:
+					print currAlgArgs, newAlgArgs
+					self.algConf[el][-1] = newAlgArgs
+					self.saveAlgConf()
+			else:
+				box = QMessageBox(QMessageBox.Warning, "Warning", "Cannot add arguments to algorithm type.")
+				box.exec_()
+		else:
+			box = QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.")
+			box.exec_()					
 			
 	def closeEvent(self, event):
 		"""Called either when the Quit button or the X is pressed.
