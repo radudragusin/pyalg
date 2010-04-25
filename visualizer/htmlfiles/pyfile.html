@@ -5,7 +5,7 @@
     <title>Analysis for {{pyfile|escape}}</title>
     <link rel='stylesheet' href='style.css' type='text/css'>
     <script type='text/javascript' src='jquery-1.3.2.min.js'></script>
-    <script type='text/javascript' src='highlight-flow.js'></script>
+    <script type='text/javascript' src='highlight.js'></script>
 </head>
 <body>
 
@@ -28,7 +28,7 @@
             </td>
             <td class='linenos' valign='top'>
                 {% for line in lines %}
-                    <p id='n{{line.number}}' class='{{line.class}}'>{{line.number}}</p>
+                    <p id='n{{line.number}}' class='{{line.class}}' onclick="{{nrselection}}">{{line.number}}</p>
                 {% endfor %}
             </td>
             <td class='text' valign='top'>

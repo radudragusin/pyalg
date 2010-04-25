@@ -5,7 +5,7 @@ import os
 import html
 import instrTracer
 
-def tracer(filename, funcname, arguments, algdir='algorithms'):
+def tracer(filename, funcname, arguments, algdir='algorithms', nrselect=False):
 		modname = os.path.splitext(os.path.basename(filename))[0]
 		function = "__import__('"+algdir+"."+modname+"')."+modname+'.'+funcname+'('+arguments+')'
 		
@@ -29,7 +29,7 @@ def tracer(filename, funcname, arguments, algdir='algorithms'):
 		flowarray = instrTracer.getAlgorithmFlow(filename,'flow.txt')
 
 		ht = html.HtmlReporter()
-		return ht.html_file(os.path.join(algdir,filename),modname,linecounts,flowarray)
+		return ht.html_file(os.path.join(algdir,filename),modname,linecounts,flowarray,nrselect)
 
 if __name__ == "__main__":
 	filename = 'insertion.py'

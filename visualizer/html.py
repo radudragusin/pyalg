@@ -17,13 +17,17 @@ class HtmlReporter(object):
         self.source_tmpl = Templite(open("htmlfiles/pyfile.html").read(), globals())
 
 
-    def html_file(self, pyfile, modname, linecounts, flowarray, imagetype='svg'):
+    def html_file(self, pyfile, modname, linecounts, flowarray, nrselect, imagetype='svg'):
         """Generate an HTML file for one source file."""
 
         source = open(pyfile).read()
         htmldir = 'htmlfiles'
         lines = []
         plotvalues = []
+        if nrselect:
+            nrselection = "changeColor(this.id)"
+        else:
+            nrselection = ""
 
         for lineno, line in enumerate(source_token_lines(source)):
             lineno += 1     # 1-based line numbers.

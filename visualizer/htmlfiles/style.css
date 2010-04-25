@@ -226,3 +226,7 @@ td.text {
 .highlight { 
 	background-color: yellow 
 	}
+
+.highlightLineNo { 
+	background-color: red 
+	}

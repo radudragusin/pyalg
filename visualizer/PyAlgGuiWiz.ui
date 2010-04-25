@@ -73,9 +73,6 @@ To continue, click Next.</string>
       <attribute name="headerVisible">
        <bool>false</bool>
       </attribute>
-      <attribute name="headerVisible">
-       <bool>false</bool>
-      </attribute>
       <column>
        <property name="text">
         <string/>
@@ -162,7 +159,7 @@ To continue, click Next.</string>
           <attribute name="title">
            <string>Tab 1</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
             <widget class="QWebView" name="resultWebView1">
              <property name="url">
@@ -208,11 +205,141 @@ To continue, click Next.</string>
     <item>
      <widget class="QLabel" name="page5Label">
       <property name="text">
-       <string>Select options for more complex algorithm analysis:</string>
+       <string>Options for more complex algorithm analysis:</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
       </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="lineSelectionGroupBox">
+      <property name="title">
+       <string>Line Selection</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QFrame" name="frame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QTableWidget" name="lineTableWidget">
+            <property name="showGrid">
+             <bool>true</bool>
+            </property>
+            <property name="cornerButtonEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="rowCount">
+             <number>0</number>
+            </property>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Algorithm</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Line</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="listGroupBox">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Assuming input argument is a list:</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QFrame" name="frame_3">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0" rowspan="2">
+           <widget class="QLabel" name="listSizeLabel">
+            <property name="text">
+             <string>List size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QSpinBox" name="listFromSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="listToLabel">
+            <property name="text">
+             <string>To:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QSpinBox" name="listToSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="listFromLabel">
+            <property name="text">
+             <string>From:</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -226,7 +353,7 @@ To continue, click Next.</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
-     <widget class="QLabel" name="page4Label_2">
+     <widget class="QLabel" name="page6Label">
       <property name="text">
        <string>Results obtained by running the algorithms with the data provided in the previous step:</string>
       </property>
@@ -245,6 +372,15 @@ To continue, click Next.</string>
    <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>lineTableWidget</tabstop>
+  <tabstop>listFromSpinBox</tabstop>
+  <tabstop>listToSpinBox</tabstop>
+  <tabstop>algTreeWiz</tabstop>
+  <tabstop>resultWebView2</tabstop>
+  <tabstop>simpleAnalysisTabWidget</tabstop>
+  <tabstop>resultWebView1</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

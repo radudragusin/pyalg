@@ -43,55 +43,11 @@ function highlightFlow(btn, strnumber, flowarray) {
 	}
 }
 
-function highlightFlowNext(btn, strnumber, flowarray) {
-	var btn = $(btn);
-	var intnumber = parseInt(strnumber);
-	
-	if(intnumber != 0){
-		var prev = flowarray[intnumber-1].toString()
-		$('#t'+prev).removeClass('highlight');
-	}
-	btn.removeClass(strnumber);
-	
-	var newo = flowarray[intnumber].toString()
-	$('#t'+newo).addClass('highlight');
-	
-	if(intnumber+1 < flowarray.length) {	
-		btn.addClass((intnumber+1).toString());
+function changeColor(nr) {
+	if($('#'+nr).hasClass('highlightLineNo')){
+		$('#'+nr).removeClass('highlightLineNo');
 	}
 	else {
-		btn.addClass("0");
-		nbtn = document.getElementById("nextbt");
-		nbtn.disabled = true;
-		nbtn.value = "Finished";
-	}
-}
-
-function highlightFlowPrev(btn, strnumber, flowarray) {
-	var btn = $(btn);
-	var intnumber = parseInt(strnumber);
-	
-	btn.removeClass(strnumber);
-	if(intnumber == -1) {
-		intnumber = flowarray.length-1;
-		strnumber = intnumber.toString();
-	}
-	
-	if(intnumber != flowarray.length-1){
-		var prev = flowarray[intnumber+1].toString()
-		$('#t'+prev).removeClass('highlight');
-	}
-	
-	var newo = flowarray[intnumber].toString()
-	$('#t'+newo).addClass('highlight');
-	
-	if(intnumber-1 >= 0) {	
-		btn.addClass((intnumber-1).toString());
-	}
-	else {
-		btn.addClass((flowarray.length-1).toString());
-		nbtn = document.getElementById("prevbt");
-		nbtn.disabled = true;
-		nbtn.value = "Finished";
+		$('#'+nr).addClass('highlightLineNo');
 	}
 }

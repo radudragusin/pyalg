@@ -423,6 +423,8 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
  
 class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 	def __init__(self,parent=None):
+		"""Initializes the wizard and connects its events with its logic part.
+		"""
 		super(PyAlgWizard,self).__init__(parent)
 		self.setupUi(self)
 		self.parent = parent
@@ -430,6 +432,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.oldArguments = "!"
 		
 		self.connect(self, SIGNAL("currentIdChanged(int)"), self.updateWizPage)
+		self.connect(self, SIGNAL("customButtonClicked(int)"), self.saveWizResults)
 		
 	# NAVIGATION THROUGH THE WIZARD'S PAGES	
 	
@@ -437,6 +440,8 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""Connect the page updating functionality with the pages, 
 		based on the current page.
 		"""
+		self.setOption(QWizard.HaveCustomButton1,False)
+		self.setOption(QWizard.HaveCustomButton2,False)
 		if id == 1 and self.justStarted:
 			#Page 2 - Step 1
 			self.updateWizAlgTree() 
@@ -447,9 +452,23 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			self.newArguments = '[1,8,9,3,0,7,2,3,4,6,5]'
 		elif id == 3:
 			#Page 4 - Step 3
-			if self.newArguments != self.oldArguments:
+			self.setOption(QWizard.HaveCustomButton1)
+			self.setButtonText(QWizard.CustomButton1, "Save All")
+			if self.newArguments != self.oldArguments or self.prevSelectedAlgorithms != self.selectedAlgorithms:
 				self.updateWizWebViews()
 				self.oldArguments = self.newArguments
+				self.prevSelectedAlgorithms = self.selectedAlgorithms
+				self.algsChanged = True
+		elif id == 4:
+			#Page 5 - Step 4
+			if self.algsChanged:
+				self.updateWizLineSelection()
+				self.algsChanged = False
+		elif id == 5:
+			#Page 6 - Step 5
+			self.setOption(QWizard.HaveCustomButton2)
+			self.setButtonText(QWizard.CustomButton2, "Save All")
+				
 	
 	def validateCurrentPage(self):
 		"""Reimplementation of the validateCurrentPage()
@@ -459,14 +478,28 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		id = self.currentId()
 		if id == 1:
 			#Step1: Verify that at least 2 algorithms were selected (TO-DO: verify if they are comparable)
-			if len(self.algTreeWiz.selectedItems())<=1:
+			if len(self.algTreeWiz.selectedItems()) >= 2:
+				self.prevSelectedAlgorithms = self.selectedAlgorithms
+				self.selectedAlgorithms = [str(el.text(0)) for el in self.algTreeWiz.selectedItems()]
+			else:
 				QMessageBox(QMessageBox.Warning, "Warning", "At least two algorithms must be selected.").exec_()
 				return False
-			else:
-				self.selectedAlgorithms = [str(el.text(0)) for el in self.algTreeWiz.selectedItems()]
-		if id == 2:
+		elif id == 2:
 			#Step2: TO-DO: Verify that the arguments are well-formed
 			pass
+		elif id == 4:
+			#Step4: Verify that at least one algorithm has line selected.
+			lineSelections = [(str(self.lineTableWidget.item(row,0).text()), str(self.lineTableWidget.item(row,1).text()).strip()) for row in range(self.lineTableWidget.rowCount()) if self.lineTableWidget.item(row,1) != None and str(self.lineTableWidget.item(row,1).text()).strip() != ""]
+			if len(lineSelections) >= 2:
+				if len(lineSelections) == len([1 for line in lineSelections if line[1].isdigit()]):
+					print lineSelections
+				else:
+					QMessageBox(QMessageBox.Warning, "Warning", "The Line column should only contain line numbers.").exec_()
+					return False
+			else:
+				QMessageBox(QMessageBox.Warning, "Warning", "At least two algorithms must be selected for comparison.").exec_()
+				return False
+				
 		return True
 	
 	# UPDATE INFORMATION IN THE PAGES
@@ -489,17 +522,21 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				if self.algConf[i][0] == parent:
 					children  = self.algConf[i][1]
 					u.addTopLevelItem(QTreeWidgetItem(wid, QStringList(children)))
+					
+		self.selectedAlgorithms = []
 		
 	def updateWizWebViews(self):
 		"""Trace each of the selected algorithms with the given arguments and 
 		show their analysis. Dynamically create tabs for the algorithms.
 		"""
 		self.simpleAnalysisTabWidget.clear()
+		html_files = []
 		for algName in self.selectedAlgorithms:
 			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
 			filename, funcname = self.algConf[el][2], self.algConf[el][3]
 			try:
-				html_filename = tracer.tracer(filename, funcname, self.newArguments)
+				html_filename = tracer.tracer(filename, funcname, self.newArguments, nrselect=True)
+				html_files.append(html_filename)
 				tab = QWidget()
 				verticalLayout = QVBoxLayout(tab)
 				resultWebView = QWebView(tab)
@@ -512,8 +549,52 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				box.exec_()
 				self.close()
 				return
+		self.html_files = html_files
+				
+	def updateWizLineSelection(self):
+		self.lineTableWidget.clearContents()
+		self.lineTableWidget.setRowCount(0)
+		
+		for algName in self.selectedAlgorithms:
+			rows = self.lineTableWidget.rowCount()
+			self.lineTableWidget.insertRow(rows)
+			item = QTableWidgetItem(QString(algName))
+			item.setFlags(Qt.ItemIsEnabled)
+			self.lineTableWidget.setItem(rows,0,item)
 
-
+	# SAVE THE RESULTS OBTAINED THROUGH THE WIZZ
+	
+	def saveWizResults(self, which):
+		"""Save the results obtained through the wizz, either from the simple
+		or the complex analysis.
+		QWizard::CustomButton1	Value: 6  Save simple analysis results
+		QWizard::CustomButton2	Value: 7  Save complex analysis results
+		"""
+		if which == 6 or which == 7:
+			browsingStartPoint = os.getenv('USERPROFILE') or os.getenv('HOME')
+			dirname = QFileDialog.getExistingDirectory(self, "Select Directory To Save In", browsingStartPoint,
+			QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
+			dirname = str(dirname)
+			if dirname != "":
+				if which == 6:
+					files = [os.path.abspath(file) for file in self.html_files]
+					for file in files:
+						try:
+							shutil.copyfile(file, os.path.join(dirname, os.path.basename(file)))
+							img = file.replace('.html','.svg')
+							shutil.copyfile(img, os.path.join(dirname, os.path.basename(img)))
+						except StandardError as detail:
+							box = QMessageBox(QMessageBox.Warning, "Error", "Could not save files.")
+							box.setDetailedText(str(detail))
+							box.exec_()
+							return
+					for filename in os.listdir(os.path.dirname(file)):
+						if filename.endswith('.js') or filename.endswith('.css'):
+							shutil.copyfile(os.path.join(os.path.dirname(file),filename), os.path.join(dirname, filename))
+					box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()
+				else:
+					print "Should save results, but feature not yet implemented."
+						
 if __name__ == "__main__":
 	import sys
 	app = QApplication(sys.argv)
