@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Sun Apr 25 18:07:45 2010
+# Created: Sun Apr 25 22:53:01 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -168,6 +168,10 @@ class Ui_Wizard(object):
         self.page6Label.setWordWrap(True)
         self.page6Label.setObjectName("page6Label")
         self.verticalLayout_6.addWidget(self.page6Label)
+        self.pictureLabel = QtGui.QLabel(self.wizardPage6)
+        self.pictureLabel.setScaledContents(True)
+        self.pictureLabel.setObjectName("pictureLabel")
+        self.verticalLayout_6.addWidget(self.pictureLabel)
         Wizard.addPage(self.wizardPage6)
 
         self.retranslateUi(Wizard)

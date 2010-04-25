@@ -7,6 +7,7 @@ import platform
 import shutil
 
 import tracer
+import compareTracer
 import ui_pyalg
 import wiz_pyalg
 
@@ -468,6 +469,8 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			#Page 6 - Step 5
 			self.setOption(QWizard.HaveCustomButton2)
 			self.setButtonText(QWizard.CustomButton2, "Save All")
+			#TO-DO!!!: Update only when parameters changed
+			self.updateWizPerformance()
 				
 	
 	def validateCurrentPage(self):
@@ -487,12 +490,14 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		elif id == 2:
 			#Step2: TO-DO: Verify that the arguments are well-formed
 			pass
+		elif id == 3:
+			pass			
 		elif id == 4:
 			#Step4: Verify that at least one algorithm has line selected.
 			lineSelections = [(str(self.lineTableWidget.item(row,0).text()), str(self.lineTableWidget.item(row,1).text()).strip()) for row in range(self.lineTableWidget.rowCount()) if self.lineTableWidget.item(row,1) != None and str(self.lineTableWidget.item(row,1).text()).strip() != ""]
 			if len(lineSelections) >= 2:
 				if len(lineSelections) == len([1 for line in lineSelections if line[1].isdigit()]):
-					print lineSelections
+					self.lineSelections = lineSelections
 				else:
 					QMessageBox(QMessageBox.Warning, "Warning", "The Line column should only contain line numbers.").exec_()
 					return False
@@ -561,6 +566,22 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			item = QTableWidgetItem(QString(algName))
 			item.setFlags(Qt.ItemIsEnabled)
 			self.lineTableWidget.setItem(rows,0,item)
+
+	def updateWizPerformance(self):
+		imgfilename = "algorithms/algPerf.png"
+		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
+		algnames = [sel[0] for sel in self.lineSelections]
+		lines = [int(sel[1]) for sel in self.lineSelections]
+		filenames, funcnames = [], []
+		for algName in algnames:
+			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
+			filename, funcname = self.algConf[el][2], self.algConf[el][3]
+			filenames.append(filename)
+			funcnames.append(funcname)
+		compareTracer.compare(filenames, funcnames, listSizes, lines, algnames, imgfilename)
+		
+		pic = QPixmap(imgfilename)
+		self.pictureLabel.setPixmap(pic)
 
 	# SAVE THE RESULTS OBTAINED THROUGH THE WIZZ
 	

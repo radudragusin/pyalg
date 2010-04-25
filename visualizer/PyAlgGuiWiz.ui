@@ -244,12 +244,6 @@ To continue, click Next.</string>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
-            <attribute name="verticalHeaderVisible">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="horizontalHeaderStretchLastSection">
-             <bool>true</bool>
-            </attribute>
             <column>
              <property name="text">
               <string>Algorithm</string>
@@ -358,6 +352,16 @@ To continue, click Next.</string>
        <string>Results obtained by running the algorithms with the data provided in the previous step:</string>
       </property>
       <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="pictureLabel">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
        <bool>true</bool>
       </property>
      </widget>
