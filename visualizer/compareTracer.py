@@ -1,5 +1,6 @@
 import trace
-import os, sys
+import os
+import sys
 
 def getPerf(filenames,funcnames,listSizes,lineSelections,algdir='algorithms'):
 	

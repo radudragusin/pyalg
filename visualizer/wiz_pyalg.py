@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Sun Apr 25 22:53:01 2010
+# Created: Mon Apr 26 11:13:10 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -140,7 +140,7 @@ class Ui_Wizard(object):
         self.listSizeLabel.setObjectName("listSizeLabel")
         self.gridLayout.addWidget(self.listSizeLabel, 0, 0, 2, 1)
         self.listFromSpinBox = QtGui.QSpinBox(self.frame_3)
-        self.listFromSpinBox.setMinimum(1)
+        self.listFromSpinBox.setMinimum(2)
         self.listFromSpinBox.setMaximum(1000)
         self.listFromSpinBox.setProperty("value", 10)
         self.listFromSpinBox.setObjectName("listFromSpinBox")
@@ -149,7 +149,7 @@ class Ui_Wizard(object):
         self.listToLabel.setObjectName("listToLabel")
         self.gridLayout.addWidget(self.listToLabel, 1, 3, 1, 1)
         self.listToSpinBox = QtGui.QSpinBox(self.frame_3)
-        self.listToSpinBox.setMinimum(1)
+        self.listToSpinBox.setMinimum(2)
         self.listToSpinBox.setMaximum(1000)
         self.listToSpinBox.setProperty("value", 100)
         self.listToSpinBox.setObjectName("listToSpinBox")
