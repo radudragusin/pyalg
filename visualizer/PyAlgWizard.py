@@ -7,6 +7,7 @@ import shutil
 
 import tracer
 import compareTracer
+import compareTimer
 import wiz_pyalg
 
 class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
@@ -30,6 +31,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 	def updateWizPage(self, id):
 		"""Connect the page updating functionality with the pages, 
 		based on the current page.
+		Update only when parameters changed.
 		"""
 		self.setOption(QWizard.HaveCustomButton1,False)
 		self.setOption(QWizard.HaveCustomButton2,False)
@@ -59,14 +61,14 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		elif id == 5:
 			#Page 6 - Step 5
 			self.setOption(QWizard.HaveCustomButton2)
-			self.setButtonText(QWizard.CustomButton2, "Save")
-			#Update only when parameters changed
+			self.setButtonText(QWizard.CustomButton2, "Save All")
 			if self.prevLineSelections != self.lineSelections or self.rangeChanged:
 				self.updateWizPerformance()
 				
 	
 	def validateCurrentPage(self):
-		"""Reimplementation of the validateCurrentPage()
+		"""Reimplementation of the validateCurrentPage(), verifies if all arguments
+		are valid before going to the next page.
 		The default implementation calls QtWizardPage::validatePage() on the currentPage().
 		The default implementation of QtWizardPage::validatePage() returns true.
 		"""
@@ -86,6 +88,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			pass			
 		elif id == 4:
 			#Step4: Verify that at least one algorithm has line selected.
+			#TO do: verify that line number does exist in alg
 			lineSelections = [(str(self.lineTableWidget.item(row,0).text()), str(self.lineTableWidget.item(row,1).text()).strip()) for row in range(self.lineTableWidget.rowCount()) if self.lineTableWidget.item(row,1) != None and str(self.lineTableWidget.item(row,1).text()).strip() != ""]
 			if len(lineSelections) >= 2:
 				if len(lineSelections) == len([1 for line in lineSelections if line[1].isdigit()]):
@@ -127,7 +130,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		
 	def updateWizWebViews(self):
 		"""Trace each of the selected algorithms with the given arguments and 
-		show their analysis. Dynamically create tabs for the algorithms.
+		show their analysis. Dynamically create tabs (with web views) for the algorithms.
 		"""
 		self.simpleAnalysisTabWidget.clear()
 		html_files = []
@@ -152,6 +155,9 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.html_files = html_files
 				
 	def updateWizLineSelection(self):
+		""" Populate/Update the table containing the algorithms for which
+		line selections can be made.
+		"""
 		self.lineTableWidget.clearContents()
 		self.lineTableWidget.setRowCount(0)
 		
@@ -163,7 +169,13 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			self.lineTableWidget.setItem(rows,0,item)
 
 	def updateWizPerformance(self):
-		self.imgfilename = "algorithms/algPerf.png"
+		""" Create/Update the image corresponding to the performance 
+		analysis of the selected algorithms, on their corresponding
+		parameters (line selections, size ranges)
+		RMK!!! Done for lists only.
+		"""
+		self.imgfilename = "algorithms/algPerf.svg"
+		self.imgfilename2 = "algorithms/algTime.svg"
 		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
 		algnames = [sel[0] for sel in self.lineSelections]
 		lines = [int(sel[1]) for sel in self.lineSelections]
@@ -173,12 +185,22 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			filename, funcname = self.algConf[el][2], self.algConf[el][3]
 			filenames.append(filename)
 			funcnames.append(funcname)
-		compareTracer.compare(filenames, funcnames, listSizes, lines, algnames, self.imgfilename)
 		
-		self.prevLineSelections = self.lineSelections
-		
-		pic = QPixmap(self.imgfilename)
-		self.pictureLabel.setPixmap(pic)
+		try:
+			compareTracer.compare(filenames, funcnames, listSizes, lines, algnames, self.imgfilename)
+			self.prevLineSelections = self.lineSelections
+			pic = QPixmap(self.imgfilename)
+			self.pictureLineLabel.setPixmap(pic)
+			
+			compareTimer.compare(filenames, funcnames, listSizes, algnames, self.imgfilename2,3)
+			pic = QPixmap(self.imgfilename2)
+			self.pictureTimeLabel.setPixmap(pic)
+		except StandardError as detail:
+			box = QMessageBox(QMessageBox.Warning, "Warning", "Could not draw performance graph.")
+			box.setDetailedText(str(detail))
+			box.exec_()
+			self.back()
+			
 
 	# SAVE THE RESULTS OBTAINED THROUGH THE WIZZ
 	
@@ -213,9 +235,10 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				else:
 					try:
 						shutil.copyfile(os.path.abspath(self.imgfilename), os.path.join(dirname, os.path.basename(self.imgfilename)))
+						shutil.copyfile(os.path.abspath(self.imgfilename2), os.path.join(dirname, os.path.basename(self.imgfilename2)))
 					except StandardError as detail:
-						box = QMessageBox(QMessageBox.Warning, "Error", "Could not save file.")
+						box = QMessageBox(QMessageBox.Warning, "Error", "Could not save files.")
 						box.setDetailedText(str(detail))
 						box.exec_()
 						return
-					box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved file.").exec_()
+					box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()

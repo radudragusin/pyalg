@@ -308,6 +308,9 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			QMessageBox(QMessageBox.Warning, "Warning", "Algorithm name empty or already used.").exec_()
 	
 	def saveAlgConf(self):
+		"""Write to the algorithms configuration file the current structure, 
+		and update the algorithms tree from the interface.
+		"""
 		with open(self.confFilePath,'w') as file:
 			for i in range(len(self.algConf)):
 				file.write(self.algConf[i][0]+';'+self.algConf[i][1]+';'+self.algConf[i][2]+';'+self.algConf[i][3]+';'+self.algConf[i][4]+'\n')
@@ -413,6 +416,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()					
 			
 	def showCompareWiz(self):
+		"""Open and focus on the Compare Algorithms Wizard."""
 		wizard = PyAlgWizard(self)
 		wizard.exec_()
 			

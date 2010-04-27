@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Mon Apr 26 11:13:10 2010
+# Created: Tue Apr 27 15:51:40 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -168,14 +168,42 @@ class Ui_Wizard(object):
         self.page6Label.setWordWrap(True)
         self.page6Label.setObjectName("page6Label")
         self.verticalLayout_6.addWidget(self.page6Label)
-        self.pictureLabel = QtGui.QLabel(self.wizardPage6)
-        self.pictureLabel.setScaledContents(True)
-        self.pictureLabel.setObjectName("pictureLabel")
-        self.verticalLayout_6.addWidget(self.pictureLabel)
+        self.frame_4 = QtGui.QFrame(self.wizardPage6)
+        self.frame_4.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame_4.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame_4.setObjectName("frame_4")
+        self.horizontalLayout_5 = QtGui.QHBoxLayout(self.frame_4)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.perfTabWidget = QtGui.QTabWidget(self.frame_4)
+        self.perfTabWidget.setObjectName("perfTabWidget")
+        self.lineTab = QtGui.QWidget()
+        self.lineTab.setObjectName("lineTab")
+        self.verticalLayout_8 = QtGui.QVBoxLayout(self.lineTab)
+        self.verticalLayout_8.setObjectName("verticalLayout_8")
+        self.pictureLineLabel = QtGui.QLabel(self.lineTab)
+        self.pictureLineLabel.setTextFormat(QtCore.Qt.AutoText)
+        self.pictureLineLabel.setScaledContents(True)
+        self.pictureLineLabel.setWordWrap(True)
+        self.pictureLineLabel.setObjectName("pictureLineLabel")
+        self.verticalLayout_8.addWidget(self.pictureLineLabel)
+        self.perfTabWidget.addTab(self.lineTab, "")
+        self.timeTab = QtGui.QWidget()
+        self.timeTab.setObjectName("timeTab")
+        self.verticalLayout_9 = QtGui.QVBoxLayout(self.timeTab)
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.pictureTimeLabel = QtGui.QLabel(self.timeTab)
+        self.pictureTimeLabel.setScaledContents(True)
+        self.pictureTimeLabel.setWordWrap(True)
+        self.pictureTimeLabel.setObjectName("pictureTimeLabel")
+        self.verticalLayout_9.addWidget(self.pictureTimeLabel)
+        self.perfTabWidget.addTab(self.timeTab, "")
+        self.horizontalLayout_5.addWidget(self.perfTabWidget)
+        self.verticalLayout_6.addWidget(self.frame_4)
         Wizard.addPage(self.wizardPage6)
 
         self.retranslateUi(Wizard)
         self.simpleAnalysisTabWidget.setCurrentIndex(1)
+        self.perfTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Wizard)
         Wizard.setTabOrder(self.lineTableWidget, self.listFromSpinBox)
         Wizard.setTabOrder(self.listFromSpinBox, self.listToSpinBox)
@@ -224,5 +252,7 @@ class Ui_Wizard(object):
         self.wizardPage6.setTitle(QtGui.QApplication.translate("Wizard", "Step 5:", None, QtGui.QApplication.UnicodeUTF8))
         self.wizardPage6.setSubTitle(QtGui.QApplication.translate("Wizard", "Complex Algorithm Analysis", None, QtGui.QApplication.UnicodeUTF8))
         self.page6Label.setText(QtGui.QApplication.translate("Wizard", "Results obtained by running the algorithms with the data provided in the previous step:", None, QtGui.QApplication.UnicodeUTF8))
+        self.perfTabWidget.setTabText(self.perfTabWidget.indexOf(self.lineTab), QtGui.QApplication.translate("Wizard", "Line Count", None, QtGui.QApplication.UnicodeUTF8))
+        self.perfTabWidget.setTabText(self.perfTabWidget.indexOf(self.timeTab), QtGui.QApplication.translate("Wizard", "Performance Time", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import QtWebKit
