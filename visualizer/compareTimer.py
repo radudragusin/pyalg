@@ -1,11 +1,13 @@
 import os.path
 from timeit import Timer
 
-def compare(filenames, funcnames, listSizes, algnames, imgfilename, nrexec=10):
+def compare(filenames, funcnames, listSizes, algnames, imgfilename, nrexec):
 	timeResults = getTimes(filenames,funcnames,listSizes,algnames,nrexec)
 	createGraph(timeResults,filenames,algnames,listSizes,imgfilename)
 
 def getTimes(filenames, funcnames, listSizes,algnames,nrexec):
+	"""For each algorithm and list, call getTime
+	"""
 	times = []
 	for size in range(listSizes[0],listSizes[1]):
 		list = genList(size)	
@@ -16,11 +18,15 @@ def getTimes(filenames, funcnames, listSizes,algnames,nrexec):
 	return times
 
 def getTime(filename, funcname, arguments, nrexec, algdir='algorithms'):
+	"""Return the running time of funcname with the given arguments
+	"""
 	modname = os.path.splitext(os.path.basename(filename))[0]
 	t = Timer(''+funcname+'('+arguments+')','from '+algdir+'.'+modname+' import '+funcname)
 	return t.timeit(nrexec)
 
 def createGraph(timeResults,filenames,algnames,listSizes,imgfilename):
+	"""Visually represent the results of the getTimes as a plot, and save it as an image
+	"""
 	import matplotlib.pyplot as plt
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -39,11 +45,3 @@ def genList(size, lower_bound=0, upper_bound=10000):
 	"""
 	import random
 	return random.sample(xrange(lower_bound,upper_bound), size)
-
-if __name__ == "__main__":
-	filenames = ['insertion.py','quicksort.py']
-	funcnames = ['InsertionSort','QuickSort']
-	listSizes = (10,12)
-	algnames = ['Insertion Sort', 'My Quick Sort']
-	imgfilename = 'algorithms/algTime.svg'
-	compare(filenames, funcnames, listSizes, algnames, imgfilename)

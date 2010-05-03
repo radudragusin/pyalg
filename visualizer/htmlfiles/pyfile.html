@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- Based on http://nedbatchelder.com/code/coverage -->
 <html>
 <head>
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
@@ -28,12 +29,15 @@
             </td>
             <td class='linenos' valign='top'>
                 {% for line in lines %}
-                    <p id='n{{line.number}}' class='{{line.class}}' onclick="{{nrselection}}">{{line.number}}</p>
+                    <p id='n{{line.number}}' class='{{line.class}}' 
+                       onclick="{{colorOnSelect}}">{{line.number}}</p>
                 {% endfor %}
             </td>
             <td class='text' valign='top'>
                 {% for line in lines %}
-                    <p id='t{{line.number}}' class='{{line.class}}'>{% if line.annotate %}<span class='annotate' title='{{line.annotate_title}}'>{{line.annotate}}</span>{% endif %}{{line.html}}<span class='strut'>&nbsp;</span></p>
+                    <p id='t{{line.number}}' class='{{line.class}}'>{% if line.annotate %}
+                       <span class='annotate' title='{{line.annotate_title}}'>{{line.annotate}}</span>
+                       {% endif %}{{line.html}}<span class='strut'>&nbsp;</span></p>
                 {% endfor %}
             </td>
         </tr>
@@ -41,8 +45,10 @@
 </div>
 
 <div>
-	<input id="prevbt" type="button" class='-1' onclick="highlightFlow(this.id,this.className,{{algflow}})" value='Prev' disabled='true'>
-	<input id="nextbt" type="button" class='-1' onclick="highlightFlow(this.id,this.className,{{algflow}})" value='Next'>
+	<input id="prevbt" type="button" class='-1' onclick="highlightFlow(this.id,this.className,{{algflow}})" 
+	   value='Prev' disabled='true'>
+	<input id="nextbt" type="button" class='-1' onclick="highlightFlow(this.id,this.className,{{algflow}})" 
+	   value='Next'>
 </div>
 
 </body>

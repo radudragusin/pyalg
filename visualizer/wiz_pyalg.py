@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Tue Apr 27 15:51:40 2010
+# Created: Wed Apr 28 08:21:50 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,6 +47,9 @@ class Ui_Wizard(object):
         self.page3Label.setWordWrap(True)
         self.page3Label.setObjectName("page3Label")
         self.verticalLayout_2.addWidget(self.page3Label)
+        self.argumentsLabel = QtGui.QLabel(self.wizardPage3)
+        self.argumentsLabel.setObjectName("argumentsLabel")
+        self.verticalLayout_2.addWidget(self.argumentsLabel)
         Wizard.addPage(self.wizardPage3)
         self.wizardPage4 = QtGui.QWizardPage()
         self.wizardPage4.setObjectName("wizardPage4")

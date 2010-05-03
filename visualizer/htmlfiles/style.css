@@ -1,5 +1,6 @@
 /* CSS styles for Coverage. */
 /* Page-wide styles */
+/* Based on http://nedbatchelder.com/code/coverage */
 html, body, h1, h2, h3, p, td, th {
     margin: 0;
     padding: 0;

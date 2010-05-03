@@ -115,6 +115,13 @@ To continue, click Next.</string>
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QLabel" name="argumentsLabel">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWizardPage" name="wizardPage4">

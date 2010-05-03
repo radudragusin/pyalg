@@ -1,9 +1,14 @@
-import trace
 import os
 import sys
+import trace
+
+def compare(filenames, funcnames, listSizes, lineSelections, algnames, imgfilename):
+	perfResults = getPerf(filenames, funcnames, listSizes, lineSelections)
+	createGraph(perfResults,filenames,funcnames,listSizes,lineSelections,algnames,imgfilename)
 
 def getPerf(filenames,funcnames,listSizes,lineSelections,algdir='algorithms'):
-	
+	"""Return the number of executions for each selected line in each algorithm.
+	"""
 	trac = trace.Trace(count=True)
 	
 	functions = []
@@ -18,8 +23,7 @@ def getPerf(filenames,funcnames,listSizes,lineSelections,algdir='algorithms'):
 		for i in range(len(funcnames)):
 			function = functions[i]
 			lineSel = lineSelections[i]
-			
-			# Temporarily redirecting stdout to a file
+
 			f = open('flow2.txt','w')
 			sys.stdout = f
 			trac.run(function+str(list)+')')
@@ -37,6 +41,8 @@ def getPerf(filenames,funcnames,listSizes,lineSelections,algdir='algorithms'):
 	return results
 
 def createGraph(perfResults,filenames,funcnames,listSizes,lineSelections,algnames,imgfilename):
+	"""Visually represent the results of the getPerf as a plot, and save it as an image
+	"""
 	import matplotlib.pyplot as plt
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -46,8 +52,8 @@ def createGraph(perfResults,filenames,funcnames,listSizes,lineSelections,algname
 		ax.plot(a,values)
 	leg = [algnames[i]+" - Line "+str(lineSelections[i]) for i in range(len(algnames))]
 	ax.legend(tuple(leg),'upper center', shadow=True)
-	ax.set_xlabel('List Size --->')
-	ax.set_ylabel('Line Count --->')
+	ax.set_xlabel('List Size')
+	ax.set_ylabel('Line Count')
 	fig.savefig(imgfilename)
 
 def genList(size, lower_bound=0, upper_bound=10000): 
@@ -55,18 +61,3 @@ def genList(size, lower_bound=0, upper_bound=10000):
 	"""
 	import random
 	return random.sample(xrange(lower_bound,upper_bound), size)
-
-def compare(filenames, funcnames, listSizes, lineSelections, algnames, imgfilename):
-	perfResults = getPerf(filenames, funcnames, listSizes, lineSelections)
-	createGraph(perfResults,filenames,funcnames,listSizes,lineSelections,algnames,imgfilename)
-	
-
-if __name__ == "__main__":
-	filenames = ['insertion.py','quicksort.py']
-	funcnames = ['InsertionSort','QuickSort']
-	listSizes = (10,50)
-	lineSelections = [5,5]
-	algnames = ['Insertion Sort', 'My Quick Sort']
-	imgfilename = 'algorithms/algPerf.svg'
-	compare(filenames, funcnames, listSizes, lineSelections, algnames, imgfilename)
-
