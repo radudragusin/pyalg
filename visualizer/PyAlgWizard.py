@@ -155,7 +155,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
 			filename, funcname = self.algConf[el][2], self.algConf[el][3]
 			try:
-				html_filename = tracer.tracer(filename, funcname, self.newArguments, nrselect=True)
+				html_filename = tracer.tracer(filename, funcname, self.newArguments, nrselect=True, plottype = self.parent.tracePlotType)
 				html_files.append(html_filename)
 				tab = QWidget()
 				verticalLayout = QVBoxLayout(tab)
@@ -193,8 +193,8 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		parameters (line selections, size ranges)
 		TO-DO: Done for lists only. Do it for other arguments.
 		"""
-		self.imgfilename = "algorithms/algPerf.svg"
-		self.imgfilename2 = "algorithms/algTime.svg"
+		self.imgfilename = "htmlfiles/algPerf.svg"
+		self.imgfilename2 = "htmlfiles/algTime.svg"
 		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
 		algnames = [sel[0] for sel in self.lineSelections]
 		lines = [int(sel[1]) for sel in self.lineSelections]

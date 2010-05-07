@@ -4,7 +4,7 @@ import trace
 
 import html
 
-def tracer(filename, funcname, arguments, algdir='algorithms', nrselect=False):
+def tracer(filename, funcname, arguments, algdir='algorithms', nrselect=False, plottype='line'):
 	""" Trace the execution of a Python program using the trace library, 
 	and pass the results to the HTML generator.
 	"""
@@ -31,7 +31,7 @@ def tracer(filename, funcname, arguments, algdir='algorithms', nrselect=False):
 	flowarray = getAlgorithmFlow(filename,'flow.txt')
 
 	ht = html.HtmlReporter()
-	return ht.html_file(os.path.join(algdir,filename),modname,linecounts,flowarray,nrselect)
+	return ht.html_file(os.path.join(algdir,filename),modname,linecounts,flowarray,nrselect,plottype)
 
 def getAlgorithmFlow(filename,flow_filename):
 	"""Return an array containing the code trace as line numbers

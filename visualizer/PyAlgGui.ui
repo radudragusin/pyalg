@@ -20,7 +20,7 @@
    <string>PyAlgLib</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QWebView" name="webView">
       <property name="url">
@@ -45,6 +45,31 @@
     <property name="title">
      <string>Options</string>
     </property>
+    <widget class="QMenu" name="menuPreferences">
+     <property name="title">
+      <string>Preferences</string>
+     </property>
+     <widget class="QMenu" name="menuTrace_Plot_Type">
+      <property name="title">
+       <string>Trace Plot Type</string>
+      </property>
+      <addaction name="linePlotAction"/>
+      <addaction name="barPlotAction"/>
+      <addaction name="filledBarPlotAction"/>
+     </widget>
+     <widget class="QMenu" name="menuArguments_Input">
+      <property name="title">
+       <string>Arguments Input</string>
+      </property>
+      <addaction name="manualArgsAction"/>
+      <addaction name="autoArgsAction"/>
+     </widget>
+     <addaction name="menuArguments_Input"/>
+     <addaction name="menuTrace_Plot_Type"/>
+     <addaction name="savePreferencesAction"/>
+    </widget>
+    <addaction name="newAction"/>
+    <addaction name="menuPreferences"/>
     <addaction name="quitAction"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -52,13 +77,15 @@
      <string>Help</string>
     </property>
     <addaction name="helpAction"/>
+    <addaction name="websiteAction"/>
+    <addaction name="keyShortcutsAction"/>
+    <addaction name="separator"/>
     <addaction name="aboutAction"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="newAction"/>
     <addaction name="renameAction"/>
     <addaction name="argumentsAction"/>
     <addaction name="deleteAction"/>
@@ -95,7 +122,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Algorithms Library</string>
+    <string>Algorithm Library</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -167,13 +194,13 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>List to sort</string>
+    <string>Arguments</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
       <widget class="QFrame" name="frame">
        <property name="baseSize">
@@ -188,148 +215,32 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QGroupBox" name="listSettingsGroupBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>70</y>
-          <width>241</width>
-          <height>131</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>List Generator Settings</string>
-        </property>
-        <widget class="QSpinBox" name="listSizeBox">
-         <property name="geometry">
-          <rect>
-           <x>4</x>
-           <y>20</y>
-           <width>71</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="value">
-          <number>10</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="listLBoundBox">
-         <property name="geometry">
-          <rect>
-           <x>4</x>
-           <y>60</y>
-           <width>71</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="minimum">
-          <number>-1000</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-        </widget>
-        <widget class="QSpinBox" name="listUBoundBox">
-         <property name="geometry">
-          <rect>
-           <x>4</x>
-           <y>100</y>
-           <width>71</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-        </widget>
-        <widget class="QLabel" name="listLBoundLabel">
-         <property name="geometry">
-          <rect>
-           <x>90</x>
-           <y>65</y>
-           <width>91</width>
-           <height>18</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>lower bound</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="listUBoundLabel">
-         <property name="geometry">
-          <rect>
-           <x>90</x>
-           <y>105</y>
-           <width>91</width>
-           <height>18</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>upper bound</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QLineEdit" name="listInputLineEdit">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>4</x>
-          <y>91</y>
-          <width>231</width>
-          <height>26</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="listSortButton">
-        <property name="geometry">
-         <rect>
-          <x>162</x>
-          <y>7</y>
-          <width>92</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Sort</string>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="listInputRadioButton">
-        <property name="geometry">
-         <rect>
-          <x>4</x>
-          <y>22</y>
-          <width>108</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Give List</string>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="listGenRadioButton">
-        <property name="geometry">
-         <rect>
-          <x>4</x>
-          <y>44</y>
-          <width>111</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Generate List</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QTabWidget" name="argumentsTabWidget">
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>Tab 1</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Tab 2</string>
+           </attribute>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="runTracerButton">
+       <property name="text">
+        <string>Run</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -371,7 +282,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>File Path:</string>
+         <string>File path:</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="pathLineEdit">
@@ -662,6 +573,61 @@
   <action name="compAction">
    <property name="text">
     <string>Compare</string>
+   </property>
+  </action>
+  <action name="linePlotAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Line Plot</string>
+   </property>
+  </action>
+  <action name="barPlotAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Bar</string>
+   </property>
+  </action>
+  <action name="filledBarPlotAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Bar (filled)</string>
+   </property>
+  </action>
+  <action name="manualArgsAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Manual</string>
+   </property>
+  </action>
+  <action name="autoArgsAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Automatic</string>
+   </property>
+  </action>
+  <action name="savePreferencesAction">
+   <property name="text">
+    <string>Save Preferences</string>
+   </property>
+  </action>
+  <action name="websiteAction">
+   <property name="text">
+    <string>Website</string>
+   </property>
+  </action>
+  <action name="keyShortcutsAction">
+   <property name="text">
+    <string>Keyboard Shortcuts</string>
    </property>
   </action>
  </widget>

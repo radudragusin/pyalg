@@ -36,8 +36,8 @@ def createGraph(timeResults,filenames,algnames,listSizes,imgfilename):
 		ax.plot(a,values)
 	leg = [algnames[i] for i in range(len(algnames))]
 	ax.legend(tuple(leg),'upper center', shadow=True)
-	ax.set_xlabel('List Size --->')
-	ax.set_ylabel('Time --->')
+	ax.set_xlabel('List Size')
+	ax.set_ylabel('Time')
 	fig.savefig(imgfilename)
 
 def genList(size, lower_bound=0, upper_bound=10000): 

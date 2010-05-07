@@ -3,31 +3,39 @@ from PyQt4.QtGui import *
 
 import os
 import os.path
-import platform
+from platform import python_version, system
+from webbrowser import open as openWB
 import shutil
 
 import tracer
 import ui_pyalg
 from PyAlgWizard import *
 
-__version__ = "0.0.1"
+from vispy.list import list as visList
+#from vispy.tree import Tree as visTree
+#from vispy.graph import Graph as visGraph
 
-class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
+__version__ = "0.0.1"
+website = "http://code.google.com/p/pyalg"
+
+class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 	def __init__(self,parent=None):
 		"""Initializes the main window of the application and connects 
 		the application's events with its logic part.
 		"""
-		super(PyAlgAnalyzer,self).__init__(parent)
+		super(PyAlgMainWindow,self).__init__(parent)
 		self.setupUi(self)
+		
+		self.confFilePath = 'algorithms/alg.conf'
+		self.visPyDir = 'vispy'
+		self.algDir = 'algorithms'
 		
 		self.setupInitView()
 		
 		self.connect(self.algTree, SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.askAlgorithmInput)
 		
-		# List generator widgets
-		self.connect(self.listInputRadioButton, SIGNAL("clicked()"), self.showListEditor)
-		self.connect(self.listGenRadioButton, SIGNAL("clicked()"), self.showListGeneratorSettings)
-		self.connect(self.listSortButton, SIGNAL("clicked()"), self.updateWebView)
+		# Data generator widgets
+		self.connect(self.runTracerButton, SIGNAL("clicked()"), self.updateWebView)
 		
 		# Adding new algorithm widgets
 		self.connect(self.pathBrowseButton, SIGNAL("clicked()"), self.updateNewAlgPath)
@@ -48,9 +56,14 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.renameAction, SIGNAL("triggered()"), self.renameAlgorithm)
 		self.connect(self.argumentsAction, SIGNAL("triggered()"), self.changeArgsAlgorithm)
 		self.connect(self.aboutAction, SIGNAL("triggered()"), self.showAboutWindow)
+		self.connect(self.websiteAction, SIGNAL("triggered()"), self.openWebsite)
 		self.connect(self.newAction, SIGNAL("triggered()"), self.showNewAlgWindow)
 		self.connect(self.compAction, SIGNAL("triggered()"), self.showCompareWiz)
-		
+		self.connect(self.linePlotAction, SIGNAL("triggered()"), self.setLinePlotType)
+		self.connect(self.barPlotAction, SIGNAL("triggered()"), self.setBarPlotType)
+		self.connect(self.filledBarPlotAction, SIGNAL("triggered()"), self.setFilledBarPlotType)
+		self.connect(self.manualArgsAction, SIGNAL("triggered()"), self.setManualInputType)
+		self.connect(self.autoArgsAction, SIGNAL("triggered()"), self.setAutoInputType)
 	
 	### INITIAL SETUP
 		
@@ -61,13 +74,10 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		* initialize the tree of available algorithms
 		* add the list of available arguments to the new-alg feature  
 		* disable algorithm editing menus
+		* set the tracer plot type to line plot (default)
+		* set the args input type to auto (default)
 		"""
 		self.algOptionsDockWidget.hide()
-		self.listSettingsGroupBox.hide()
-		self.listInputLineEdit.hide()
-		self.listSortButton.setEnabled(False)
-		
-		self.confFilePath = 'algorithms/alg.conf'
 		
 		self.updateAlgTree()
 		
@@ -82,9 +92,23 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.newAlgAddArgButton.setEnabled(False)
 		self.newAlgArgOpGroupBox.setEnabled(False)
 		
+		self.selectedAlgorithm = None
 		self.renameAction.setEnabled(False)
 		self.deleteAction.setEnabled(False)
 		self.argumentsAction.setEnabled(False)
+		
+		actionGroup = QActionGroup(self)
+		self.linePlotAction.setActionGroup(actionGroup)
+		self.barPlotAction.setActionGroup(actionGroup)
+		self.filledBarPlotAction.setActionGroup(actionGroup)
+		self.linePlotAction.setChecked(True)
+		self.tracePlotType = 'line' # default value
+		
+		actionGroup = QActionGroup(self)
+		self.manualArgsAction.setActionGroup(actionGroup)
+		self.autoArgsAction.setActionGroup(actionGroup)
+		self.autoArgsAction.setChecked(True)
+		self.inputType = 'auto' # default value
 		
 	def updateAlgTree(self,sep=';'):
 		"""Read the algorithms configuration file which includes the 
@@ -93,7 +117,9 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""
 		self.algConf = []
 		try:
-			lines = open(self.confFilePath).readlines()
+			file = open(self.confFilePath)
+			lines = file.readlines()
+			file.close()
 			for line in lines:
 				if line !='\n':
 					self.algConf.append(line.strip('\n').split(sep))
@@ -102,38 +128,24 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 
 		self.algTree.clear()
 		
-		parents = set([self.algConf[i][0] for i in range(len(self.algConf))])
-		for parent in parents:
-			algTypeItem = QTreeWidgetItem(None, QStringList(parent))
+		sections = set([self.algConf[i][0] for i in range(len(self.algConf))])
+		for section in sections:
+			algTypeItem = QTreeWidgetItem(None, QStringList(section))
 			self.algTree.addTopLevelItem(algTypeItem)
 			self.algTree.expandItem(algTypeItem)
 			algTypeItem.setFlags(Qt.ItemIsEnabled)
 			algTypeWidget = QTreeWidget(self.algTree.itemWidget(algTypeItem,1))
 			
 			for i in range(len(self.algConf)):
-				if self.algConf[i][0] == parent:
+				if self.algConf[i][0] == section:
 					children  = self.algConf[i][1]
 					algTypeWidget.addTopLevelItem(QTreeWidgetItem(algTypeItem, QStringList(children)))
-		self.parents = parents
+		self.sections = sections
 		
 	# TO-DO: add data generators for more types of arguments (currently 
 	#implemented: list)
 		
-	### FUNCTIONALITIES FOR THE LIST ALGORITHMS 
-			
-	def showListGeneratorSettings(self):
-		"""Show the settings for generating a list to sort.
-		"""
-		self.listInputLineEdit.hide()
-		self.listSettingsGroupBox.show()
-		self.listSortButton.setEnabled(True)
-	
-	def showListEditor(self):
-		"""Show the line edit for writing a user-defined list to sort.
-		"""
-		self.listSettingsGroupBox.hide()
-		self.listInputLineEdit.show()
-		self.listSortButton.setEnabled(True)
+	### FUNCTIONALITIES FOR THE LIST ALGORITHMS
 		
 	def genList(self, size, lower_bound, upper_bound, distribution='normal'): 
 		"""Generate lists for testing the sorting algorithms.
@@ -144,48 +156,123 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		else:
 			return []
 		
-	### SHOWING OPTIONS FOR SELECTED ALGORITHM
+	### SHOWING ARGUMENTS INPUT FOR SELECTED ALGORITHM
 	
 	def askAlgorithmInput(self,item,column):
 		"""Show the available input arguments for the selected algorithm.
 		TO-DO: remove hard-coded sorting algorithms and add other types
 		of algorithms as soon as the new data generators are implemented.
 		"""
-		self.webView.setUrl(QUrl('about:blank'))
 		itemParent = item.parent()
 		if itemParent is not None:
-			parentName = itemParent.text(column)
-			if parentName == 'Sorting Algorithms':
+			if self.selectedAlgorithm is not item:
+				self.webView.setUrl(QUrl('about:blank'))
 				algName = str(item.text(column))
 				self.algOptionsDockWidget.show()
 				
-				el = [confIndex for confIndex in range(len(self.algConf))\
-				  if algName in self.algConf[confIndex][1]]
-				if len(el) != 0:
-					el = el[0]
-					self.filename = self.algConf[el][2]
-					self.funcname = self.algConf[el][3]
+				algIndex = [confIndex for confIndex in range(len(self.algConf))\
+				  if algName in self.algConf[confIndex][1]][0]
+				
+				self.argumentsTabWidget.clear()
+				self.addArgumentTabs(eval(self.algConf[algIndex][4]))
+				
+				self.filename = self.algConf[algIndex][2]
+				self.funcname = self.algConf[algIndex][3]
+				self.selectedAlgorithm = item
 		else:
+			self.webView.setUrl(QUrl('about:blank'))
+			self.selectedAlgorithm = item
 			self.algOptionsDockWidget.hide()
 			
+	def addArgumentTabs(self, arguments):
+		"""Add tab for each input argument corresponding to the selected
+		algorithm. For each such tab, add contents (manual/automatic input,
+		with corresponding widgets).
+		"""
+		self.argsType = arguments
+		self.argsDict = {}
+		for i,arg in enumerate(arguments):
+			tab = QWidget()
+			tab.setObjectName("argumentsTab"+str(i))
+			verticalLayout = QVBoxLayout(tab)
+			
+			manualInputRadioButton = QRadioButton(tab)
+			manualInputRadioButton.setText("Input (manual)")
+			manualInputRadioButton.setObjectName("manualInputRadioButton"+str(i))
+			verticalLayout.addWidget(manualInputRadioButton)
+			
+			manualInputLineEdit = QLineEdit(tab)
+			manualInputLineEdit.setObjectName("manualInputLineEdit"+str(i))
+			verticalLayout.addWidget(manualInputLineEdit)
+			
+			autoInputRadioButton = QRadioButton(tab)
+			autoInputRadioButton.setText("Generate (automatic)")
+			autoInputRadioButton.setObjectName("autoInputRadioButton"+str(i))
+			verticalLayout.addWidget(autoInputRadioButton)
+			
+			QObject.connect(manualInputRadioButton,SIGNAL('clicked()'),manualInputLineEdit,SLOT("setEnabled(True)"))
+			QObject.connect(autoInputRadioButton,SIGNAL('clicked()'),manualInputLineEdit,SLOT("setEnabled(False)"))
+			
+			if self.inputType == 'manual': manualInputRadioButton.setChecked(True)
+			elif self.inputType == 'auto': autoInputRadioButton.setChecked(True)
+						
+			#TO-DO: add automatic generator contents for more types
+			self.argsDict[i] = []
+			if arg == 'List' or arg == 'Tree' or arg == 'Graph':
+				file = open(os.path.join(self.visPyDir,arg.lower()+'.py'),'r')
+				lines = file.readlines()
+				file.close()
+				genLine = [line.strip() for line in lines if line.strip().startswith('def genRandom'+arg)][0]
+				genLine = genLine.split('(')[1].split(')')[0].split(',')[1:]
+				for j,el in enumerate(genLine):
+					elType, elName = el.strip().split('_')
+					if elType == 'int':
+						spinBox = QSpinBox(tab)
+						spinBox.setObjectName("spinBox"+str(i)+str(j))
+						if '=' in elName:
+							elName, elDefaultValue = elName.split('=')
+							elName, elDefaultValue = elName.strip(), elDefaultValue.strip()
+							spinBox.setValue(int(elDefaultValue))
+						spinBoxLabel = QLabel(tab)
+						spinBoxLabel.setText(elName+':')
+						verticalLayout.addWidget(spinBoxLabel)
+						verticalLayout.addWidget(spinBox)
+						self.argsDict[i].append("spinBox"+str(i)+str(j))
+			elif arg == 'Int':
+				manualInputRadioButton.setChecked(True)
+				autoInputRadioButton.setEnabled(False)
+			
+			self.argumentsTabWidget.addTab(tab,'(Arg '+str(i+1)+') '+arg)
+	
 	### UPDATING THE WEB VIEW BASED ON THE SELECTED ALGORITHM
 			
 	def updateWebView(self):
 		"""Update the content of the web page displaying the algorithm's 
-		code and analysis. 
+		code and analysis. Called when the 'run trace' button was pressed.
 		TO-DO: evaluate the corectness of the arguments for datatypes 
 		other than lists, as soon as the data generators are added.
 		"""
-		if self.listInputRadioButton.isChecked() == True:
-			arguments = str(self.listInputLineEdit.text())
-		elif self.listGenRadioButton.isChecked() == True:
-			arguments = str(self.genList(self.listSizeBox.value(),
-			  self.listLBoundBox.value(),self.listUBoundBox.value()))
+		nrOfArgTabs = self.argumentsTabWidget.count()
+		for i in range(nrOfArgTabs):
+			tab = self.argumentsTabWidget.widget(i)
+			if tab.findChild(QRadioButton, "manualInputRadioButton"+str(i)).isChecked():
+				arguments = str(tab.findChild(QLineEdit, "manualInputLineEdit"+str(i)).text())
+			elif tab.findChild(QRadioButton, "autoInputRadioButton"+str(i)).isChecked():
+				genArguments = [tab.findChild(QSpinBox, arg).value() for arg in self.argsDict[i]]
+				if self.argsType[i] == 'List':
+					genList = visList()
+					print genArguments
+					apply(genList.genRandomList,genArguments)
+					arguments = str(genList)
+			else:
+				return
+			print arguments
+		
 		try:
 			list = eval(arguments)
 			if type(list) == type([]) and len(list) > 0:
 				try:
-					html_filename = tracer.tracer(self.filename, self.funcname, arguments)
+					html_filename = tracer.tracer(self.filename, self.funcname, arguments, plottype = self.tracePlotType)
 					self.webView.setUrl(QUrl(html_filename))
 				except StandardError as detail:
 					box = QMessageBox(QMessageBox.Warning, "Warning", 
@@ -221,7 +308,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			functions = self.getNewAlgFunctions(path)
 			self.newAlgFuncComboBox.clear()
 			self.newAlgFuncComboBox.addItems(QStringList(functions))
-			types = list(self.parents)
+			types = list(self.sections)
 			if '' not in types:
 				types.insert(0,'')
 			self.newAlgTypeComboBox.clear()
@@ -234,10 +321,12 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		in the path argument.
 		"""
 		functions = []
-		lines = open(path).readlines()
+		file = open(path)
+		lines = file.readlines()
+		file.close()
 		for line in lines:
 			if line.strip().startswith('def '):
-				functions.append(line.strip().split()[1].split(':')[0])
+				functions.append(line.strip().split(None,1)[1].split(':')[0])
 		return functions
 		
 	def getListOfFuncArgs(self):
@@ -317,15 +406,15 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		fileName = str(self.pathLineEdit.text())
 		funcName = str(self.newAlgFuncComboBox.currentText()).split('(')[0]
 		algName = str(self.newAlgNameLineEdit.text().trimmed())
-		parentName = str(self.newAlgTypeComboBox.currentText())
+		sectionName = str(self.newAlgTypeComboBox.currentText())
 		arguments = [str(arg) for arg in self.newAlgArgsModel.stringList()]
 
 		if algName != "" and len([i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]])==0:
-			newPath = os.path.join(os.path.join(os.getcwd(),'algorithms'),os.path.basename(fileName))
+			newPath = os.path.join(os.path.join(os.getcwd(),self.algDir),os.path.basename(fileName))
 			while os.path.exists(newPath):
 				newPath = newPath[:-3] + '0' + newPath[-3:]
 			shutil.copyfile(fileName, newPath)
-			self.algConf.append([parentName,algName,os.path.basename(newPath),funcName,str(arguments)])
+			self.algConf.append([sectionName,algName,os.path.basename(newPath),funcName,str(arguments)])
 			self.saveAlgConf()
 			QMessageBox(QMessageBox.Information , "Success", "OK. Algorithm added.").exec_()
 			self.newAlgDockWidget.hide()
@@ -350,13 +439,13 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		QMessageBox.information(self, "About PyAlgLib",
 			"""<b>PyAlgLib</b> v %s
 			<p>An algorithms learning platform in Python.
-			<p><a href="http://code.google.com/p/pyalg">PyAlgLib Web Site</a>
+			<p><a href="%s">PyAlgLib Web Site</a>
 			<p>Copyright &copy; 2010. 
 			Radu Dragusin, Paula Petcu.
 			<p>Code License: 
 			<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GNU General Public License v2</a>
 			<p>Python %s -Qt %s -PyQt %s on %s"""
-			% (__version__,platform.python_version(),QT_VERSION_STR,PYQT_VERSION_STR,platform.system()))
+			% (__version__,website,python_version(),QT_VERSION_STR,PYQT_VERSION_STR,system()))
 	
 	def showNewAlgWindow(self):
 		"""Open a pop-up window for adding a new algorithm to the existing library.
@@ -390,7 +479,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 				if reply == QMessageBox.Yes:
 					el = [i for i in range(len(self.algConf)) if currAlgName in self.algConf[i][1]][0]
 					try:
-						os.remove(os.path.join(os.path.join(os.getcwd(),'algorithms'),self.algConf[el][2]))
+						os.remove(os.path.join(os.path.join(os.getcwd(),self.algDir),self.algConf[el][2]))
 						self.algConf.pop(el)
 						self.saveAlgConf()
 					except StandardError as detail:
@@ -406,6 +495,7 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 			
 	def renameAlgorithm(self):
 		"""Rename the selected algorithm from the library, if any selected.
+		Can also rename sections (algorithm types).
 		"""
 		currItem = self.algTree.currentItem()
 		if currItem:
@@ -422,8 +512,16 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 					else:
 						QMessageBox(QMessageBox.Warning, "Warning", "Name already used.").exec_()
 			else:
-				QMessageBox(QMessageBox.Warning, "Warning", 
-				  "Cannot rename algorithm type containing one or more algorithms.").exec_()
+				currAlgTypeName = str(self.algTree.currentItem().text(0))
+				(newAlgTypeName,reply) = QInputDialog.getText(self,"Rename","New name:",
+				  QLineEdit.Normal,currAlgTypeName)
+				newAlgTypeName = newAlgTypeName.trimmed()
+				if reply and newAlgTypeName != currAlgTypeName:
+					if len([i for i in range(len(self.algConf)) if newAlgTypeName in [self.algConf[i][0]]])==0:
+						for i in range(len(self.algConf)):
+							if currAlgTypeName in [self.algConf[i][0]]:
+								self.algConf[i][0] = newAlgTypeName
+						self.saveAlgConf()
 		else:
 			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()	
 			
@@ -447,11 +545,29 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 		else:
 			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()					
 			
+	def setLinePlotType(self):
+		self.tracePlotType = 'line'
+	
+	def setBarPlotType(self):
+		self.tracePlotType = 'bar'
+	
+	def setFilledBarPlotType(self):
+		self.tracePlotType = 'filledbar'
+		
+	def setManualInputType(self):
+		self.inputType = 'manual'
+		
+	def setAutoInputType(self):
+		self.inputType = 'auto'
+	
 	def showCompareWiz(self):
 		"""Open and focus on the Compare Algorithms Wizard.
 		"""
 		wizard = PyAlgWizard(self)
 		wizard.exec_()
+		
+	def openWebsite(self):
+		openWB(website)
 			
 	def closeEvent(self, event):
 		"""Called either when the Quit button or the X is pressed.
@@ -461,6 +577,6 @@ class PyAlgAnalyzer(QMainWindow, ui_pyalg.Ui_MainWindow):
 if __name__ == "__main__":
 	import sys
 	app = QApplication(sys.argv)
-	form = PyAlgAnalyzer()
+	form = PyAlgMainWindow()
 	form.show()
 	app.exec_()
