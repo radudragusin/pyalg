@@ -425,6 +425,13 @@ To continue, click Next.</string>
       </layout>
      </widget>
     </item>
+    <item>
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>24</number>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

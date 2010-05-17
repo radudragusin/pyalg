@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Wed Apr 28 08:21:50 2010
+# Created: Mon May 17 14:24:53 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -202,6 +202,10 @@ class Ui_Wizard(object):
         self.perfTabWidget.addTab(self.timeTab, "")
         self.horizontalLayout_5.addWidget(self.perfTabWidget)
         self.verticalLayout_6.addWidget(self.frame_4)
+        self.progressBar = QtGui.QProgressBar(self.wizardPage6)
+        self.progressBar.setProperty("value", 24)
+        self.progressBar.setObjectName("progressBar")
+        self.verticalLayout_6.addWidget(self.progressBar)
         Wizard.addPage(self.wizardPage6)
 
         self.retranslateUi(Wizard)

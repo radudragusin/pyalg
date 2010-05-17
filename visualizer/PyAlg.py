@@ -74,7 +74,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		* initialize the tree of available algorithms
 		* add the list of available arguments to the new-alg feature  
 		* disable algorithm editing menus
-		* set the tracer plot type to line plot (default)
+		* set the tracer plot type to filled bar plot (default)
 		* set the args input type to auto (default)
 		"""
 		self.algOptionsDockWidget.hide()
@@ -101,8 +101,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.linePlotAction.setActionGroup(actionGroup)
 		self.barPlotAction.setActionGroup(actionGroup)
 		self.filledBarPlotAction.setActionGroup(actionGroup)
-		self.linePlotAction.setChecked(True)
-		self.tracePlotType = 'line' # default value
+		self.filledBarPlotAction.setChecked(True)
+		self.tracePlotType = 'filledbar' # default value
 		
 		actionGroup = QActionGroup(self)
 		self.manualArgsAction.setActionGroup(actionGroup)
@@ -210,13 +210,11 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			autoInputRadioButton.setObjectName("autoInputRadioButton"+str(i))
 			verticalLayout.addWidget(autoInputRadioButton)
 			
-			QObject.connect(manualInputRadioButton,SIGNAL('clicked()'),manualInputLineEdit,SLOT("setEnabled(True)"))
-			QObject.connect(autoInputRadioButton,SIGNAL('clicked()'),manualInputLineEdit,SLOT("setEnabled(False)"))
-			
 			if self.inputType == 'manual': manualInputRadioButton.setChecked(True)
 			elif self.inputType == 'auto': autoInputRadioButton.setChecked(True)
 						
 			#TO-DO: add automatic generator contents for more types
+			#TO-DO: set max and min values in spin boxes?
 			self.argsDict[i] = []
 			if arg == 'List' or arg == 'Tree' or arg == 'Graph':
 				file = open(os.path.join(self.visPyDir,arg.lower()+'.py'),'r')
@@ -242,7 +240,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 				manualInputRadioButton.setChecked(True)
 				autoInputRadioButton.setEnabled(False)
 			
-			self.argumentsTabWidget.addTab(tab,'(Arg '+str(i+1)+') '+arg)
+			self.argumentsTabWidget.addTab(tab,'(arg '+str(i+1)+') '+arg)
 	
 	### UPDATING THE WEB VIEW BASED ON THE SELECTED ALGORITHM
 			
@@ -359,6 +357,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""
 		self.newAlgArgOpGroupBox.setEnabled(True)
 		self.selectedModifArgIndex = index.row()
+		self.selectedModifArgIndexModel = index
 		
 	def moveUpNewAlgArgument(self):
 		"""Move one position up the selected argument type.
@@ -573,7 +572,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""Called either when the Quit button or the X is pressed.
 		"""
 		event.accept()
-						
+
+				
 if __name__ == "__main__":
 	import sys
 	app = QApplication(sys.argv)

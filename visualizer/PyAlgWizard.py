@@ -7,9 +7,11 @@ import os.path
 import shutil
 
 import tracer
-import compareTracer
-import compareTimer
+from compareTracer import CompareTracer
+from compareTimer import CompareTimer
 import wiz_pyalg
+
+from vispy.list import list as visList
 
 class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 	def __init__(self,parent=None):
@@ -64,6 +66,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				self.updateWizLineSelection()
 				self.algsChanged = False
 				self.prevLineSelections = []
+				self.prevRangeValues = ()
 		elif id == 5:
 			#Page 6 - Step 5
 			#TO-DO: check if arguments changed for all types of arguments 
@@ -120,7 +123,10 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		return True
 	
 	def setListSizeRangeChanged(self):
-		self.rangeChanged = True
+		if self.prevRangeValues != (self.listFromSpinBox.value(), self.listToSpinBox.value()):
+			self.rangeChanged = True
+		else:
+			self.rangeChanged = False
 	
 	# UPDATE INFORMATION IN THE PAGES
 	
@@ -198,6 +204,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
 		algnames = [sel[0] for sel in self.lineSelections]
 		lines = [int(sel[1]) for sel in self.lineSelections]
+		
 		filenames, funcnames = [], []
 		for algName in algnames:
 			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
@@ -205,21 +212,63 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			filenames.append(filename)
 			funcnames.append(funcname)
 		
+		self.cmpTimer = CompareTimer(filenames, funcnames, listSizes, algnames, self.imgfilename2,1)
+		self.timeResults = []
+		self.cmpLines = CompareTracer(filenames, funcnames, listSizes, lines, algnames, self.imgfilename)
+		self.lineResults = []
+		self.pictureLineLabel.setPixmap(QPixmap())
+		self.pictureTimeLabel.setPixmap(QPixmap())
+		
+		self.progressBar.setVisible(True)
+		self.progressBar.setRange(0,listSizes[1]-listSizes[0])
+		self.progressBar.setFormat('%v out of %m done')
+		for i,listSize in enumerate(range(listSizes[0],listSizes[1])):
+			if self.isHidden() == False and self.currentId() == 5:
+				self.cmpLinesAndTime(listSize)
+				self.progressBar.setValue(i)
+				QApplication.processEvents()
+			else:
+				break
+		
 		try:
-			compareTracer.compare(filenames, funcnames, listSizes, lines, algnames, self.imgfilename)
-			self.prevLineSelections = self.lineSelections
-			pic = QPixmap(self.imgfilename)
-			self.pictureLineLabel.setPixmap(pic)
+			self.progressBar.setRange(0,2)
+			self.progressBar.setFormat('Generating benchmark suite')
+			self.progressBar.setValue(0)
+			QApplication.processEvents()
+			if self.isHidden() == False and self.currentId() == 5:
+				self.cmpLines.createGraph(self.lineResults)
+				pic = QPixmap(self.imgfilename)
+				self.pictureLineLabel.setPixmap(pic)
+				
+				self.progressBar.setValue(1)
+				QApplication.processEvents()
+
+			if self.isHidden() == False and self.currentId() == 5:
+				self.cmpTimer.createGraph(self.timeResults)
+				pic = QPixmap(self.imgfilename2)
+				self.pictureTimeLabel.setPixmap(pic)
+				
+				self.progressBar.setValue(2)
+				QApplication.processEvents()
+				
+				self.prevLineSelections = self.lineSelections
+				self.prevRangeValues = (self.listFromSpinBox.value(), self.listToSpinBox.value())
+				self.rangeChanged = False
 			
-			compareTimer.compare(filenames, funcnames, listSizes, algnames, self.imgfilename2,1)
-			pic = QPixmap(self.imgfilename2)
-			self.pictureTimeLabel.setPixmap(pic)
+			self.progressBar.setVisible(False)
+
 		except StandardError as detail:
 			box = QMessageBox(QMessageBox.Warning, "Warning", "Could not draw performance graph.")
 			box.setDetailedText(str(detail))
 			box.exec_()
 			self.back()
+
 			
+	def cmpLinesAndTime(self,listSize):
+		list = visList()
+		list.genRandomList(listSize)
+		self.timeResults = self.timeResults + self.cmpTimer.getTimes(list)
+		self.lineResults = self.lineResults + self.cmpLines.getPerf(list)
 
 	# SAVE THE RESULTS OBTAINED THROUGH THE WIZARD
 	
