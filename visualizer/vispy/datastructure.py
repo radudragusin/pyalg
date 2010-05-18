@@ -2,7 +2,11 @@ from abstract import abstract
 
 class GraphDatastructure():
 
-    def nodeExists(self, node_id): abstract()
+    def addVertex(self, vertex_id): abstract()
+    
+    def addEdge(self, (vertex_id_1, vertex_id_2), weight=0): abstract()
+
+    def vertexExists(self, node_id): abstract()
 
     def edgeExists(self, edge_id): abstract()
     
@@ -10,31 +14,25 @@ class GraphDatastructure():
 
     def removeEdges(self, edge_list): abstract()
 
-    def getNodes(self): abstract()
+    def getVertices(self): abstract()
     
     def getEdges(self):  abstract()
     
-    def degreeList(self):  abstract()
+    def degreelist(self):  abstract()
     
     def getAdjEdges(self, node_id): abstract()
 
-    def getAdjNodes(self, node_id): abstract()
+    def getAdjVertices(self, node_id): abstract()
         
-    def isEdge(self, (node_id_1, node_id_2)): abstract()
+    def getVertex(self, node_id):  abstract()
     
-    def getNode(self, node_id):  abstract()
-    
-    def __str__(self): abstract()
-
     # the following functions are following a strict naming scheme across
     # our datastructures
-    def vizMe(self, figNum=1, markEdges=[], markNodes=[]): abstract()
+    def visualise(self, figNum=1, markEdges=[], markNodes=[]): abstract()
 
-    def vizMeNot(self): abstract()
+    def clearVisualisation(self): abstract()
         
-    def random(self, n): abstract()
+    def generateRandomGraph(self, n): abstract()
         
-    def empty(self):  abstract()
-    
     def clear(self):  abstract()
 

@@ -5,13 +5,14 @@ from PyQt4.QtWebKit import QWebView
 import os
 import os.path
 import shutil
+import sys
 
 import tracer
 from compareTracer import CompareTracer
 from compareTimer import CompareTimer
 import wiz_pyalg
 
-from vispy.list import list as visList
+from vispy.list import List as visList
 
 class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 	def __init__(self,parent=None):
@@ -157,18 +158,13 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""
 		self.simpleAnalysisTabWidget.clear()
 		html_files = []
+		#self.lineSel = SelectionClass()
 		for algName in self.selectedAlgorithms:
 			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
 			filename, funcname = self.algConf[el][2], self.algConf[el][3]
 			try:
 				html_filename = tracer.tracer(filename, funcname, self.newArguments, nrselect=True, plottype = self.parent.tracePlotType)
 				html_files.append(html_filename)
-				tab = QWidget()
-				verticalLayout = QVBoxLayout(tab)
-				resultWebView = QWebView(tab)
-				resultWebView.setUrl(QUrl(html_filename))
-				verticalLayout.addWidget(resultWebView)
-				self.simpleAnalysisTabWidget.addTab(tab,algName)
 			except StandardError as detail:
 				box = QMessageBox(QMessageBox.Warning, "Warning", 
 				  "Invalid Code for "+algName+\
@@ -177,7 +173,19 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				box.exec_()
 				self.close()
 				return
+			tab = QWidget()
+			verticalLayout = QVBoxLayout(tab)
+			resultWebView = QWebView(tab)
+			self.resultWevView = resultWebView
+			#self.connect(resultWebView.page().mainFrame(),SIGNAL('javaScriptWindowObjectCleared()'),self,SLOT('attachObject'))
+			#resultWebView.page().mainFrame().addToJavaScriptWindowObject("pyObj",self.lineSel)
+			resultWebView.setUrl(QUrl(html_filename))
+			verticalLayout.addWidget(resultWebView)
+			self.simpleAnalysisTabWidget.addTab(tab,algName)
 		self.html_files = html_files
+	
+	def attachObject():
+		self.resultWevView.page().mainFrame().addToJavaScriptWindowObject("pyObj",self.lineSel)
 				
 	def updateWizLineSelection(self):
 		""" Populate/Update the table containing the algorithms for which
@@ -185,6 +193,8 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""
 		self.lineTableWidget.clearContents()
 		self.lineTableWidget.setRowCount(0)
+		
+		#print self.lineSel.getList()
 		
 		for algName in self.selectedAlgorithms:
 			rows = self.lineTableWidget.rowCount()
@@ -313,3 +323,26 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 						box.exec_()
 						return
 					box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()
+
+#class SelectionClass(QObject):
+	##def __init__(self):
+		##QObject.__init__(self)
+		##self.list = []
+	
+	##def _appendSelection(self,sel):
+		##self.list.append(sel)
+	
+	#@pyqtSlot(str)
+	#def appendSelection(self,sel):
+		##self.list.append(sel)
+		#QMessageBox.information(None, "Info", sel)
+		
+	#def _pyVersion(self):
+		#return sys.version
+		
+	#pyVersion = pyqtProperty(str, fget=_pyVersion)
+	
+	##def getList(self):
+		##return 'cm'#self.list
+	##appendSelection = pyqtProperty(str, fget=_appendSelection)
+		

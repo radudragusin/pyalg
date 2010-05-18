@@ -11,7 +11,7 @@ import tracer
 import ui_pyalg
 from PyAlgWizard import *
 
-from vispy.list import list as visList
+#from vispy.list import list as visList
 #from vispy.tree import Tree as visTree
 #from vispy.graph import Graph as visGraph
 
@@ -91,6 +91,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.newAlgArgsListView2.setModel(self.newAlgArgsModel)
 		self.newAlgAddArgButton.setEnabled(False)
 		self.newAlgArgOpGroupBox.setEnabled(False)
+		self.newAlgArgsListView1.setDragDropMode(QAbstractItemView.DragOnly)
+		self.newAlgArgsListView2.setDragDropMode(QAbstractItemView.DropOnly)
 		
 		self.selectedAlgorithm = None
 		self.renameAction.setEnabled(False)
@@ -160,8 +162,6 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 	
 	def askAlgorithmInput(self,item,column):
 		"""Show the available input arguments for the selected algorithm.
-		TO-DO: remove hard-coded sorting algorithms and add other types
-		of algorithms as soon as the new data generators are implemented.
 		"""
 		itemParent = item.parent()
 		if itemParent is not None:
@@ -213,29 +213,23 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			if self.inputType == 'manual': manualInputRadioButton.setChecked(True)
 			elif self.inputType == 'auto': autoInputRadioButton.setChecked(True)
 						
-			#TO-DO: add automatic generator contents for more types
 			#TO-DO: set max and min values in spin boxes?
 			self.argsDict[i] = []
-			if arg == 'List' or arg == 'Tree' or arg == 'Graph':
-				file = open(os.path.join(self.visPyDir,arg.lower()+'.py'),'r')
-				lines = file.readlines()
-				file.close()
-				genLine = [line.strip() for line in lines if line.strip().startswith('def genRandom'+arg)][0]
-				genLine = genLine.split('(')[1].split(')')[0].split(',')[1:]
+			if arg != 'Int' and arg in self.availableGenerators:
+				genLine = self.availableGeneratorsArguments[self.availableGenerators.index(arg)]
 				for j,el in enumerate(genLine):
-					elType, elName = el.strip().split('_')
-					if elType == 'int':
-						spinBox = QSpinBox(tab)
-						spinBox.setObjectName("spinBox"+str(i)+str(j))
-						if '=' in elName:
-							elName, elDefaultValue = elName.split('=')
-							elName, elDefaultValue = elName.strip(), elDefaultValue.strip()
-							spinBox.setValue(int(elDefaultValue))
-						spinBoxLabel = QLabel(tab)
-						spinBoxLabel.setText(elName+':')
-						verticalLayout.addWidget(spinBoxLabel)
-						verticalLayout.addWidget(spinBox)
-						self.argsDict[i].append("spinBox"+str(i)+str(j))
+					elName = el.strip()
+					spinBox = QSpinBox(tab)
+					spinBox.setObjectName("spinBox"+str(i)+str(j))
+					if '=' in elName:
+						elName, elDefaultValue = elName.split('=')
+						elName, elDefaultValue = elName.strip(), elDefaultValue.strip()
+						spinBox.setValue(int(elDefaultValue))
+					spinBoxLabel = QLabel(tab)
+					spinBoxLabel.setText(elName+':')
+					verticalLayout.addWidget(spinBoxLabel)
+					verticalLayout.addWidget(spinBox)
+					self.argsDict[i].append("spinBox"+str(i)+str(j))
 			elif arg == 'Int':
 				manualInputRadioButton.setChecked(True)
 				autoInputRadioButton.setEnabled(False)
@@ -257,11 +251,12 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 				arguments = str(tab.findChild(QLineEdit, "manualInputLineEdit"+str(i)).text())
 			elif tab.findChild(QRadioButton, "autoInputRadioButton"+str(i)).isChecked():
 				genArguments = [tab.findChild(QSpinBox, arg).value() for arg in self.argsDict[i]]
-				if self.argsType[i] == 'List':
-					genList = visList()
+				arg = self.argsType[i]
+				if arg == 'List':
 					print genArguments
-					apply(genList.genRandomList,genArguments)
-					arguments = str(genList)
+					genIns = self.availableGeneratorsModules[self.availableGenerators.index(arg)]()
+					eval('apply(genIns.generaterandom'+arg.lower()+',genArguments)')
+					arguments = str(genIns)
 			else:
 				return
 			print arguments
@@ -328,11 +323,35 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		return functions
 		
 	def getListOfFuncArgs(self):
-		"""Return the list of available function arguments types - needed for 
-		populating the list view of the new algorithm functionality.
-		TO-DO: connect this with actual data generators
+		"""Return the list of available function arguments types (and thus generators)
+		- needed for populating the list view of the new algorithm functionality
+		- needed for generating random data
+		TO-DO: remove hard coded list generator !!!
+		TO-DO: verify if only one class
 		"""
-		return ['List','Graph','Tree','Int']
+		availableGenerators = ['Int']
+		availableGeneratorsArguments = ['']
+		availableGeneratorsModules = [None]
+		for filename in os.listdir(os.path.abspath(self.visPyDir)):
+			if filename.endswith('.py'):
+				file = open(os.path.join(self.visPyDir,filename),'r')
+				lines = file.readlines()
+				file.close()
+				randomGeneratorLine = 'def generaterandom'+filename.split('.')[0].lower()
+				codeRandomGeneratorLine = [line for line in lines if randomGeneratorLine in line]
+				if codeRandomGeneratorLine != []:
+					module = filename.split('.')[0]
+					availableGenerators.append(module.capitalize())
+					generatorArgumentsLine = codeRandomGeneratorLine[0].split('(')[1].split(')')[0].split(',')[1:]
+					availableGeneratorsArguments.append(generatorArgumentsLine)
+					generatorClass = module.capitalize()
+					_temp = __import__(os.path.basename(self.visPyDir)+'.'+module, globals(), locals(), [generatorClass], -1)
+					visClass = eval('_temp.'+generatorClass)
+					availableGeneratorsModules.append(visClass)
+		self.availableGenerators = availableGenerators
+		self.availableGeneratorsArguments = availableGeneratorsArguments
+		self.availableGeneratorsModules = availableGeneratorsModules
+		return availableGenerators	#return ['List','Graph','Tree','Int']
 		
 	def selectNewAlgArgument(self, index):
 		"""Store the selected argument type from the available list of 
@@ -365,10 +384,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""
 		currList = self.newAlgArgsModel.stringList()
 		if self.selectedModifArgIndex > 0:
-			currArg = currList.takeAt(self.selectedModifArgIndex)
-			currList.insert(self.selectedModifArgIndex-1,currArg)
-			self.newAlgArgsModel = QStringListModel(QStringList(currList))
-			self.newAlgArgsListView2.setModel(self.newAlgArgsModel)
+			currList.swap(self.selectedModifArgIndex-1,self.selectedModifArgIndex)
+			self.newAlgArgsListView2.model().setStringList(currList)
 			self.newAlgArgOpGroupBox.setEnabled(False)
 			self.selectedModifArgIndex = -1
 	
@@ -378,10 +395,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""
 		currList = self.newAlgArgsModel.stringList()
 		if -1 < self.selectedModifArgIndex < len(currList)-1:
-			currArg = currList.takeAt(self.selectedModifArgIndex)
-			currList.insert(self.selectedModifArgIndex+1,currArg)
-			self.newAlgArgsModel = QStringListModel(QStringList(currList))
-			self.newAlgArgsListView2.setModel(self.newAlgArgsModel)
+			currList.swap(self.selectedModifArgIndex+1,self.selectedModifArgIndex)
+			self.newAlgArgsListView2.model().setStringList(currList)
 			self.newAlgArgOpGroupBox.setEnabled(False)
 			self.selectedModifArgIndex = -1	
 			
@@ -391,8 +406,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		currList = self.newAlgArgsModel.stringList()
 		if self.selectedModifArgIndex != -1:
 			currList.takeAt(self.selectedModifArgIndex)
-			self.newAlgArgsModel = QStringListModel(QStringList(currList))
-			self.newAlgArgsListView2.setModel(self.newAlgArgsModel)
+			self.newAlgArgsListView2.model().setStringList(currList)
 			self.newAlgArgOpGroupBox.setEnabled(False)
 			self.selectedModifArgIndex = -1	
 		
@@ -526,7 +540,6 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			
 	def changeArgsAlgorithm(self):
 		"""Edit the arguments list of the selected algorithm, if any.
-		TO-DO: verify if the list of arguments is well-formed
 		"""
 		currItem = self.algTree.currentItem()
 		if currItem:
@@ -536,14 +549,28 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 				currAlgArgs = self.algConf[el][-1]
 				(newAlgArgs,reply) = QInputDialog.getText(self,"Edit Arguments",
 				  "New arguments list:",QLineEdit.Normal,currAlgArgs)
-				if reply and newAlgArgs != currAlgArgs:
+				if reply and newAlgArgs != currAlgArgs and self.isWellFormedArgumentList(newAlgArgs):
 					self.algConf[el][-1] = newAlgArgs
 					self.saveAlgConf()
+				elif reply and newAlgArgs != currAlgArgs:
+					QMessageBox(QMessageBox.Warning, "Warning", "List of arguments is not well formed.").exec_()
 			else:
 				QMessageBox(QMessageBox.Warning, "Warning", "Cannot add arguments to algorithm type.").exec_()
 		else:
 			QMessageBox(QMessageBox.Warning, "Warning", "No algorithm selected.").exec_()					
 			
+	def isWellFormedArgumentList(self,argsList):
+		"""Verify if the list of arguments is well-formed (is a list of strings 
+		representing existing data generators). Returns True or False. 
+		"""
+		try:
+			alist = eval(str(argsList))
+			if len([1 for el in alist if el in self.availableGenerators]) == len(alist):
+				return True
+			return False
+		except:
+			return False
+				
 	def setLinePlotType(self):
 		self.tracePlotType = 'line'
 	
@@ -566,6 +593,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		wizard.exec_()
 		
 	def openWebsite(self):
+		"""Opens the project's webiste in a new browser window (uses
+		default internet browser)."""
 		openWB(website)
 			
 	def closeEvent(self, event):
