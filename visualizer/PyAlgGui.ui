@@ -672,7 +672,7 @@
   </action>
   <action name="compAction">
    <property name="text">
-    <string>Compare</string>
+    <string>Benchmarking</string>
    </property>
   </action>
   <action name="linePlotAction">

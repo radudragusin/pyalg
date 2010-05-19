@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Tue May 18 21:26:33 2010
+# Created: Wed May 19 12:12:33 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -348,7 +348,7 @@ class Ui_MainWindow(object):
         self.renameAction.setText(QtGui.QApplication.translate("MainWindow", "Rename", None, QtGui.QApplication.UnicodeUTF8))
         self.argumentsAction.setText(QtGui.QApplication.translate("MainWindow", "Arguments", None, QtGui.QApplication.UnicodeUTF8))
         self.compareAction.setText(QtGui.QApplication.translate("MainWindow", "Compare", None, QtGui.QApplication.UnicodeUTF8))
-        self.compAction.setText(QtGui.QApplication.translate("MainWindow", "Compare", None, QtGui.QApplication.UnicodeUTF8))
+        self.compAction.setText(QtGui.QApplication.translate("MainWindow", "Benchmarking", None, QtGui.QApplication.UnicodeUTF8))
         self.linePlotAction.setText(QtGui.QApplication.translate("MainWindow", "Line Plot", None, QtGui.QApplication.UnicodeUTF8))
         self.barPlotAction.setText(QtGui.QApplication.translate("MainWindow", "Bar", None, QtGui.QApplication.UnicodeUTF8))
         self.filledBarPlotAction.setText(QtGui.QApplication.translate("MainWindow", "Bar (filled)", None, QtGui.QApplication.UnicodeUTF8))

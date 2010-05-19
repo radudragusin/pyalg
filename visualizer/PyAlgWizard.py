@@ -23,7 +23,6 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.setupUi(self)
 		self.parent = parent
 		self.justStarted = True
-		self.oldArguments = None
 		self.rangeChanged = False
 		
 		self.connect(self, SIGNAL("currentIdChanged(int)"), self.updateWizPage)
@@ -40,7 +39,6 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		TO-DO: add more data generators and interface for giving the args
 		"""
 		self.setOption(QWizard.HaveCustomButton1,False)
-		self.setOption(QWizard.HaveCustomButton2,False)
 		
 		if id == 1 and self.justStarted:
 			#Page 2 - Step 1
@@ -48,35 +46,26 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			self.justStarted = False
 		elif id == 2:
 			#Page 3 - Step 2
-			#TO-DO: create generator
-			self.newArguments = str(self.parent.genList(11,0,20))
-			self.argumentsLabel.setText(self.newArguments)
-		elif id == 3:
-			#Page 4 - Step 3
-			self.setOption(QWizard.HaveCustomButton1)
-			self.setButtonText(QWizard.CustomButton1, "Save All")
-			if self.newArguments != self.oldArguments or \
-			  self.prevSelectedAlgorithms != self.selectedAlgorithms:
-				self.updateWizWebViews()
-				self.oldArguments = self.newArguments
+			if self.prevSelectedAlgorithms != self.selectedAlgorithms:
+				self.updateWizTableViews()
 				self.prevSelectedAlgorithms = self.selectedAlgorithms
 				self.algsChanged = True
+				self.prevLineSelections = []
+		elif id == 3:
+			#Page 4 - Step 3
+			if self.algsChanged and self.prevLineSelections != self.lineSelections:
+				self.algsChanged = False
+				self.prevRangeValues = ()
+				self.doPerformance = True
 		elif id == 4:
 			#Page 5 - Step 4
-			if self.algsChanged:
-				self.updateWizLineSelection()
-				self.algsChanged = False
-				self.prevLineSelections = []
-				self.prevRangeValues = ()
-		elif id == 5:
-			#Page 6 - Step 5
 			#TO-DO: check if arguments changed for all types of arguments 
 			#(currently supporting only modification of range for list arg)
-			self.setOption(QWizard.HaveCustomButton2)
-			self.setButtonText(QWizard.CustomButton2, "Save All")
-			if self.prevLineSelections != self.lineSelections or self.rangeChanged:
+			self.setOption(QWizard.HaveCustomButton1)
+			self.setButtonText(QWizard.CustomButton1, "Save All")
+			if self.doPerformance or self.rangeChanged:
 				self.updateWizPerformance()
-				
+				self.doPerformance = False
 	
 	def validateCurrentPage(self):
 		"""Reimplementation of the validateCurrentPage(), verifies if all arguments
@@ -86,41 +75,27 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""
 		id = self.currentId()
 		if id == 1:
-			#Step1: Verify that at least 2 algorithms were selected 
-			if len(self.algTreeWiz.selectedItems()) >= 2:
+			#Step1: Verify that at least one algorithm was selected 
+			if len(self.algTreeWiz.selectedItems()) >= 1:
 				self.prevSelectedAlgorithms = self.selectedAlgorithms
 				self.selectedAlgorithms = [str(el.text(0)) for el in self.algTreeWiz.selectedItems()]
 			else:
 				QMessageBox(QMessageBox.Warning, "Warning", 
-				  "At least two algorithms must be selected.").exec_()
+				  "At least one algorithm must be selected.").exec_()
 				return False
 		elif id == 2:
-			#Step2: TO-DO: Verify that the arguments are well-formed
-			pass
-		elif id == 3:
-			pass			
-		elif id == 4:
-			#Step4: Verify that at least two algorithms have line selected.
-			#TO-DO: verify that line number does exist in alg
-			#TO-DO: connect selection of line in Javascript with this interface
-			#TO-DO: figure out if it makes sense to 'compare' just one algorithm
-			lineSelections = [(str(self.lineTableWidget.item(row,0).text()), 
-			  str(self.lineTableWidget.item(row,1).text()).strip()) \
-			  for row in range(self.lineTableWidget.rowCount()) \
-			  if self.lineTableWidget.item(row,1) != None and \
-			    str(self.lineTableWidget.item(row,1).text()).strip() != ""]
-			if len(lineSelections) >= 2:
-				if len(lineSelections) == len([1 for line in lineSelections if line[1].isdigit()]):
-					self.lineSelections = lineSelections
-				else:
-					QMessageBox(QMessageBox.Warning, "Warning", 
-					  "The Line column should only contain line numbers.").exec_()
-					return False
+			#Step 2: Verify that the line selections are valid
+			lineSelections = []
+			for i in range(len(self.lineSelectionsTableViews)):
+				tableView = self.lineSelectionsTableViews[i]
+				algName = self.selectedAlgorithms[i]
+				lineSelections.append((algName,[index.row()+1 for index in tableView.selectedIndexes()]))
+			if len([1 for s in lineSelections if s[1]!=[] ]) == len(lineSelections):
+				self.lineSelections = lineSelections
 			else:
 				QMessageBox(QMessageBox.Warning, "Warning", 
-				  "At least two algorithms must be selected for comparison.").exec_()
+				  "All algorithms selected for comparison must have at least one line selected.").exec_()
 				return False
-				
 		return True
 	
 	def setListSizeRangeChanged(self):
@@ -152,56 +127,32 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 					
 		self.selectedAlgorithms = []
 		
-	def updateWizWebViews(self):
-		"""Trace each of the selected algorithms with the given arguments and 
-		show their analysis. Dynamically create tabs (with web views) for the algorithms.
+	def updateWizTableViews(self):
+		"""Dynamically create tabs (with table views) for the algorithms and allow line selections.
 		"""
 		self.simpleAnalysisTabWidget.clear()
+		self.lineSelectionsTableViews = []
 		html_files = []
-		#self.lineSel = SelectionClass()
 		for algName in self.selectedAlgorithms:
 			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
-			filename, funcname = self.algConf[el][2], self.algConf[el][3]
-			try:
-				html_filename = tracer.tracer(filename, funcname, self.newArguments, nrselect=True, plottype = self.parent.tracePlotType)
-				html_files.append(html_filename)
-			except StandardError as detail:
-				box = QMessageBox(QMessageBox.Warning, "Warning", 
-				  "Invalid Code for "+algName+\
-				  ". Review the code and upload it again. The Wizard will now close.")
-				box.setDetailedText(str(detail))
-				box.exec_()
-				self.close()
-				return
+			filename = self.algConf[el][2]
 			tab = QWidget()
 			verticalLayout = QVBoxLayout(tab)
-			resultWebView = QWebView(tab)
-			self.resultWevView = resultWebView
-			#self.connect(resultWebView.page().mainFrame(),SIGNAL('javaScriptWindowObjectCleared()'),self,SLOT('attachObject'))
-			#resultWebView.page().mainFrame().addToJavaScriptWindowObject("pyObj",self.lineSel)
-			resultWebView.setUrl(QUrl(html_filename))
-			verticalLayout.addWidget(resultWebView)
+			resultTableView = QTableView(tab)
+			file = open(os.path.join(self.parent.algDir,filename),'r')
+			lines = file.readlines()
+			file.close()
+			lines = [line.rstrip() for line in lines if line.strip() != '']
+			resultTableView.setModel(QStringListModel(QStringList(lines)))
+			resultTableView.setShowGrid(False)
+			resultTableView.setSelectionMode(QAbstractItemView.ExtendedSelection)
+			resultTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+			resultTableView.horizontalHeader().setStretchLastSection(True)
+			resultTableView.horizontalHeader().setVisible(False)
+			verticalLayout.addWidget(resultTableView)
 			self.simpleAnalysisTabWidget.addTab(tab,algName)
+			self.lineSelectionsTableViews.append(resultTableView)
 		self.html_files = html_files
-	
-	def attachObject():
-		self.resultWevView.page().mainFrame().addToJavaScriptWindowObject("pyObj",self.lineSel)
-				
-	def updateWizLineSelection(self):
-		""" Populate/Update the table containing the algorithms for which
-		line selections can be made.
-		"""
-		self.lineTableWidget.clearContents()
-		self.lineTableWidget.setRowCount(0)
-		
-		#print self.lineSel.getList()
-		
-		for algName in self.selectedAlgorithms:
-			rows = self.lineTableWidget.rowCount()
-			self.lineTableWidget.insertRow(rows)
-			item = QTableWidgetItem(QString(algName))
-			item.setFlags(Qt.ItemIsEnabled)
-			self.lineTableWidget.setItem(rows,0,item)
 
 	def updateWizPerformance(self):
 		""" Create/Update the image corresponding to the performance 
@@ -213,7 +164,9 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.imgfilename2 = "htmlfiles/algTime.svg"
 		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
 		algnames = [sel[0] for sel in self.lineSelections]
-		lines = [int(sel[1]) for sel in self.lineSelections]
+		lines = [int(sel[1][0]) for sel in self.lineSelections]
+		
+		print algnames, lines
 		
 		filenames, funcnames = [], []
 		for algName in algnames:
@@ -228,12 +181,11 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.lineResults = []
 		self.pictureLineLabel.setPixmap(QPixmap())
 		self.pictureTimeLabel.setPixmap(QPixmap())
-		
 		self.progressBar.setVisible(True)
 		self.progressBar.setRange(0,listSizes[1]-listSizes[0])
 		self.progressBar.setFormat('%v out of %m done')
 		for i,listSize in enumerate(range(listSizes[0],listSizes[1])):
-			if self.isHidden() == False and self.currentId() == 5:
+			if self.isHidden() == False and self.currentId() == 4:
 				self.cmpLinesAndTime(listSize)
 				self.progressBar.setValue(i)
 				QApplication.processEvents()
@@ -245,7 +197,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			self.progressBar.setFormat('Generating benchmark suite')
 			self.progressBar.setValue(0)
 			QApplication.processEvents()
-			if self.isHidden() == False and self.currentId() == 5:
+			if self.isHidden() == False and self.currentId() == 4:
 				self.cmpLines.createGraph(self.lineResults)
 				pic = QPixmap(self.imgfilename)
 				self.pictureLineLabel.setPixmap(pic)
@@ -253,7 +205,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				self.progressBar.setValue(1)
 				QApplication.processEvents()
 
-			if self.isHidden() == False and self.currentId() == 5:
+			if self.isHidden() == False and self.currentId() == 4:
 				self.cmpTimer.createGraph(self.timeResults)
 				pic = QPixmap(self.imgfilename2)
 				self.pictureTimeLabel.setPixmap(pic)
@@ -273,76 +225,35 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			box.exec_()
 			self.back()
 
-			
 	def cmpLinesAndTime(self,listSize):
+		"""Generate a list of a given size, and call the modules for 
+		performance analysis for that list. Save the results.
+		Used by updateWizPerformance"""
 		list = visList()
-		list.genRandomList(listSize)
+		list.generaterandomlist(listSize,0,10)
 		self.timeResults = self.timeResults + self.cmpTimer.getTimes(list)
 		self.lineResults = self.lineResults + self.cmpLines.getPerf(list)
 
 	# SAVE THE RESULTS OBTAINED THROUGH THE WIZARD
 	
 	def saveWizResults(self, buttonId):
-		"""Save the results obtained through the wizz, either from the simple
-		or the complex analysis.
-		QWizard::CustomButton1	Value: 6  Save simple analysis results
-		QWizard::CustomButton2	Value: 7  Save complex analysis results
+		"""Save the performance results obtained through the wizz.
+		QWizard::CustomButton1	Value: 6  Save performance results
 		"""
-		if buttonId == 6 or buttonId == 7:
+		if buttonId == 6:
 			browsingStartPoint = os.getenv('USERPROFILE') or os.getenv('HOME')
 			dirname = QFileDialog.getExistingDirectory(self, "Select Directory To Save In", 
 			  browsingStartPoint, QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
 			dirname = str(dirname)
 			if dirname != "":
-				if buttonId == 6:
-					files = [os.path.abspath(file) for file in self.html_files]
-					for file in files:
-						try:
-							shutil.copyfile(file, os.path.join(dirname, os.path.basename(file)))
-							img = file.replace('.html','.svg')
-							shutil.copyfile(img, os.path.join(dirname, os.path.basename(img)))
-						except StandardError as detail:
-							box = QMessageBox(QMessageBox.Warning, "Error", "Could not save files.")
-							box.setDetailedText(str(detail))
-							box.exec_()
-							return
-					for filename in os.listdir(os.path.dirname(file)):
-						if filename.endswith('.js') or filename.endswith('.css'):
-							shutil.copyfile(os.path.join(os.path.dirname(file),filename), 
-							  os.path.join(dirname, filename))
-					box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()
-				else:
-					try:
-						shutil.copyfile(os.path.abspath(self.imgfilename), 
-						  os.path.join(dirname, os.path.basename(self.imgfilename)))
-						shutil.copyfile(os.path.abspath(self.imgfilename2), 
-						  os.path.join(dirname, os.path.basename(self.imgfilename2)))
-					except StandardError as detail:
-						box = QMessageBox(QMessageBox.Warning, "Error", "Could not save files.")
-						box.setDetailedText(str(detail))
-						box.exec_()
-						return
-					box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()
-
-#class SelectionClass(QObject):
-	##def __init__(self):
-		##QObject.__init__(self)
-		##self.list = []
-	
-	##def _appendSelection(self,sel):
-		##self.list.append(sel)
-	
-	#@pyqtSlot(str)
-	#def appendSelection(self,sel):
-		##self.list.append(sel)
-		#QMessageBox.information(None, "Info", sel)
-		
-	#def _pyVersion(self):
-		#return sys.version
-		
-	#pyVersion = pyqtProperty(str, fget=_pyVersion)
-	
-	##def getList(self):
-		##return 'cm'#self.list
-	##appendSelection = pyqtProperty(str, fget=_appendSelection)
-		
+				try:
+					shutil.copyfile(os.path.abspath(self.imgfilename), 
+					  os.path.join(dirname, os.path.basename(self.imgfilename)))
+					shutil.copyfile(os.path.abspath(self.imgfilename2), 
+					  os.path.join(dirname, os.path.basename(self.imgfilename2)))
+				except StandardError as detail:
+					box = QMessageBox(QMessageBox.Warning, "Error", "Could not save files.")
+					box.setDetailedText(str(detail))
+					box.exec_()
+					return
+				box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()
