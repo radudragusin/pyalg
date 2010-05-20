@@ -13,7 +13,7 @@ class CompareTracer():
 			functions.append("__import__('"+algdir+"."+modname+"')."+modname+'.'+funcname+'(')
 		self.functions = functions
 
-	def getPerf(self,list):
+	def getPerf(self,arguments):
 		"""Return the number of executions for each selected line in each algorithm.
 		"""
 		results = []
@@ -23,7 +23,7 @@ class CompareTracer():
 
 			f = open('flow2.txt','w')
 			sys.stdout = f
-			self.trac.run(function+str(list)+')')
+			self.trac.run(function+str(arguments)+')')
 			sys.stdout = sys.__stdout__
 			f.close()
 			
@@ -56,6 +56,6 @@ class CompareTracer():
 				ax.plot(a,values)
 				leg.append(currAlgName+' - Line '+str(currLineSel))
 		ax.legend(tuple(leg),'upper center', shadow=True)
-		ax.set_xlabel('List Size')
+		ax.set_xlabel('Range')
 		ax.set_ylabel('Line Count')
 		fig.savefig(self.imgfilename)

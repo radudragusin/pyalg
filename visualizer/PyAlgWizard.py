@@ -12,8 +12,6 @@ from compareTracer import CompareTracer
 from compareTimer import CompareTimer
 import wiz_pyalg
 
-from vispy.list import List as visList
-
 class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 	def __init__(self,parent=None):
 		"""Initializes the wizard and connects its events with its logic part.
@@ -23,15 +21,16 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.setupUi(self)
 		self.parent = parent
 		self.justStarted = True
-		self.rangeChanged = False
+		self.rangeValuesChanged = False
 		
 		self.imgfilename = "htmlfiles/algPerf.svg"
 		self.imgfilename2 = "htmlfiles/algTime.svg"
 		
 		self.connect(self, SIGNAL("currentIdChanged(int)"), self.updateWizPage)
 		self.connect(self, SIGNAL("customButtonClicked(int)"), self.saveWizResults)
-		self.connect(self.listFromSpinBox, SIGNAL("valueChanged(int)"), self.setListSizeRangeChanged)
-		self.connect(self.listToSpinBox, SIGNAL("valueChanged(int)"), self.setListSizeRangeChanged)
+		self.connect(self.rangeFromSpinBox, SIGNAL("valueChanged(int)"), self.setRangeValuesChanged)
+		self.connect(self.rangeToSpinBox, SIGNAL("valueChanged(int)"), self.setRangeValuesChanged)
+		self.connect(self.rangeElemComboBox, SIGNAL("currentIndexChanged(int)"), self.disableRangeElemValueEditing)
 		
 	# NAVIGATION THROUGH THE WIZARD'S PAGES	
 	
@@ -39,7 +38,6 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""Connect the page updating functionality with the pages, 
 		based on the current page.
 		Update only when parameters changed.
-		TO-DO: add more interface for giving the args
 		"""
 		self.setOption(QWizard.HaveCustomButton1,False)
 		
@@ -55,13 +53,17 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				self.prevSelectedAlgorithms = self.selectedAlgorithms
 				self.algsChanged = True
 				self.prevLineSelections = []
+		elif id == 3:
+			#Page 4 - Step 3
+			#TO-DO: update only when necessary
+			self.updateRangeAndValues()
 		elif id == 4:
 			#Page 5 - Step 4 (Final Step)
 			#TO-DO: check if arguments changed for all types of arguments 
 			#(currently supporting only modification of range for list arg)
 			self.setOption(QWizard.HaveCustomButton1)
 			self.setButtonText(QWizard.CustomButton1, "Save All")
-			if self.algsChanged or self.rangeChanged or self.prevLineSelections != self.lineSelections:
+			if self.algsChanged or self.rangeValuesChanged or self.prevLineSelections != self.lineSelections:
 				self.updateWizPerformance()
 				self.algsChanged = False
 	
@@ -80,6 +82,10 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				if len(selectedItems) == 1 or self.areCompatibleAlgorithms(selectedItems):
 					self.prevSelectedAlgorithms = self.selectedAlgorithms
 					self.selectedAlgorithms = [str(el.text(0)) for el in selectedItems]
+					if len(selectedItems) == 1:
+						algArgs = [self.algConf[algIndex][4] for algIndex in range(len(self.algConf))\
+						  if self.selectedAlgorithms[0] in [self.algConf[algIndex][1]]][0]
+						self.algorithmsArguments = eval(algArgs)
 				else:
 					QMessageBox(QMessageBox.Warning, "Warning", 
 					  "The algorithms you select must have the same type of arguments, given in the same order.")\
@@ -102,6 +108,12 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				QMessageBox(QMessageBox.Warning, "Warning", 
 				  "All algorithms selected for comparison must have at least one line selected.").exec_()
 				return False
+		elif id == 3:
+			#Verify that all arguments have int values (exception makes the range argument)
+			if not self.areAllArgumentValuesGiven():
+				QMessageBox(QMessageBox.Warning, "Warning", 
+				  "All fixed arguments must have an integer value.").exec_()
+				return False
 		elif id == 4:
 			# Final Step: Ask user to save the results, if he did not already do so.
 			if self.outputSaved == False:
@@ -121,23 +133,55 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		
 		algName = selectedAlgorithmsNames[0]
 		prevAlgArgs = [self.algConf[algIndex][4] for algIndex in range(len(self.algConf))\
-		  if algName in self.algConf[algIndex][1]][0]
+		  if algName in [self.algConf[algIndex][1]]][0]
 		
 		for i in range(1,len(selectedAlgorithmsNames)):
 			algName = selectedAlgorithmsNames[i]
 			algArgs = [self.algConf[algIndex][4] for algIndex in range(len(self.algConf))\
-			  if algName in self.algConf[algIndex][1]][0]
+			  if algName in [self.algConf[algIndex][1]]][0]
 			if algArgs != prevAlgArgs:
 				return False
 			prevAlgArgs = algArgs
-			
+		
+		self.algorithmsArguments = eval(algArgs)
 		return True
+		
+	def areAllArgumentValuesGiven(self):
+		"""Return True/False depending on whether all arguments have or do not have 
+		corresponding values. The exception is the selected range argument, which 
+		of course does not need a fixed value.
+		"""
+		rangeArgumentIndex = self.rangeElemComboBox.currentIndex()
+		valuesFromTableWidget = [str(self.valuesTableWidget.item(row,1).text()).strip() \
+		  for row in range(self.valuesTableWidget.rowCount())\
+		  if row != rangeArgumentIndex]
+		if '' not in valuesFromTableWidget:
+			try:
+				[int(val) for val in valuesFromTableWidget]
+				return True
+			except:
+				pass
+		return False
 	
-	def setListSizeRangeChanged(self):
-		if self.prevRangeValues != (self.listFromSpinBox.value(), self.listToSpinBox.value()):
-			self.rangeChanged = True
+	def setRangeValuesChanged(self):
+		"""Set on True the value of rangeValuesChanged if the values from
+		the spin boxes are different from the previous values. Called 
+		when a change was made in one of the spinboxes.
+		"""
+		if self.prevRangeValues != (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value()):
+			self.rangeValuesChanged = True
 		else:
-			self.rangeChanged = False
+			self.rangeValuesChanged = False
+	
+	def disableRangeElemValueEditing(self):
+		"""TO-DO: Disable editing for the argument selected as range for the 
+		performance analysis.
+		"""
+		#if self.prevDisabledTableItemIndex != -1:
+			#self.valuesTableWidget.item(self.prevDisabledTableItemIndex,1).setFlags(Qt.ItemIsTristate)
+		#self.valuesTableWidget.item(self.rangeElemComboBox.currentIndex(),1).setFlags(Qt.ItemIsEnabled)
+		#self.prevDisabledTableItemIndex = self.rangeElemComboBox.currentIndex()
+		return
 	
 	# UPDATE INFORMATION IN THE PAGES
 	
@@ -189,15 +233,64 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			self.lineSelectionsTableViews.append(resultTableView)
 		self.html_files = html_files
 
+	def updateRangeAndValues(self):
+		"""Update the list of available arguments that can be selected
+		for the performance analysis.
+		"""
+		self.rangeElemComboBox.clear()
+		self.valuesTableWidget.clearContents()
+		self.valuesTableWidget.setRowCount(0)
+		self.prevDisabledTableItemIndex = -1
+		self.algArgs = []
+		
+		argNames = self.algorithmsArguments
+		possibleRangeElementsStringList = []
+		for i,argName in enumerate(argNames):
+			if argName != 'Int':
+				genLine = self.parent.availableGeneratorsArguments[self.parent.availableGenerators.index(argName)]
+				for j,el in enumerate(genLine):
+					elName = el.strip()
+					if '=' in elName:
+						elName, elDefaultValue = elName.split('=')
+						elName, elDefaultValue = elName.strip(), elDefaultValue.strip()
+					name = '(Arg '+str(i+1)+': '+argName+') '+elName
+					possibleRangeElementsStringList.append(name)
+					self.addRowWithNameValue(name,elDefaultValue)
+					self.algArgs.append([i,argName,elName])
+			else:
+				name = '(Arg '+str(i+1)+': '+argName+') '+'value'
+				possibleRangeElementsStringList.append(name)
+				self.addRowWithNameValue(name,'')
+				self.algArgs.append([i,argName,'value'])
+				
+		self.rangeElemComboBox.addItems(QStringList(possibleRangeElementsStringList))
+		return
+	
+	def addRowWithNameValue(self,name,value):
+		"""Add a row in the valuesTableWidget (containing the fixed values for
+		the algorithms) with 2 columns: name and default value.
+		"""
+		rows = self.valuesTableWidget.rowCount()
+		self.valuesTableWidget.insertRow(rows)
+		item = QTableWidgetItem(QString(name))
+		item.setFlags(Qt.ItemIsEnabled)
+		self.valuesTableWidget.setItem(rows,0,item)
+		self.valuesTableWidget.setItem(rows,1, QTableWidgetItem(QString(value)))
+
 	def updateWizPerformance(self):
 		""" Create/Update the image corresponding to the performance 
 		analysis of the selected algorithms, on their corresponding
 		parameters (line selections, size ranges)
-		TO-DO: Done for lists only. Do it for other arguments.
 		"""
-		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
+		rangeBoundaries = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
 		algnames = [linesel[0] for linesel in self.lineSelections]
 		lines = [[int(sel) for sel in linesel[1]] for linesel in self.lineSelections]
+		
+		rangeArgumentIndex = self.rangeElemComboBox.currentIndex()
+		self.rangeArgumentType = self.algArgs[rangeArgumentIndex][1]
+		self.rangeArgumentTypeIndex = self.algArgs[rangeArgumentIndex][0]
+		self.valuesFromTableWidget = [str(self.valuesTableWidget.item(row,1).text()) for row in range(self.valuesTableWidget.rowCount())]
+		self.generateNonRangeArguments()
 		
 		filenames, funcnames = [], []
 		for algName in algnames:
@@ -206,18 +299,19 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			filenames.append(filename)
 			funcnames.append(funcname)
 		
-		self.cmpLines = CompareTracer(filenames, funcnames, listSizes, lines, algnames, self.imgfilename)
+		self.cmpLines = CompareTracer(filenames, funcnames, rangeBoundaries, lines, algnames, self.imgfilename)
 		self.lineResults = []
-		self.cmpTimer = CompareTimer(filenames, funcnames, listSizes, algnames, self.imgfilename2,self.parent.nrBenchExec)
+		self.cmpTimer = CompareTimer(filenames, funcnames, rangeBoundaries, algnames, self.imgfilename2,self.parent.nrBenchExec)
 		self.timeResults = []
 		self.pictureLineLabel.setPixmap(QPixmap())
 		self.pictureTimeLabel.setPixmap(QPixmap())
 		self.progressBar.setVisible(True)
-		self.progressBar.setRange(0,listSizes[1]-listSizes[0])
+		self.progressBar.setRange(0,rangeBoundaries[1]-rangeBoundaries[0])
 		self.progressBar.setFormat('%v out of %m done')
-		for i,listSize in enumerate(range(listSizes[0],listSizes[1])):
+		for i,currentValue in enumerate(range(rangeBoundaries[0],rangeBoundaries[1])):
 			if self.isHidden() == False and self.currentId() == 4:
-				self.cmpLinesAndTime(listSize)
+				self.valuesFromTableWidget[rangeArgumentIndex] = currentValue
+				self.cmpLinesAndTime(currentValue)
 				self.progressBar.setValue(i)
 				QApplication.processEvents()
 			else:
@@ -245,8 +339,8 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				QApplication.processEvents()
 				
 				self.prevLineSelections = self.lineSelections
-				self.prevRangeValues = (self.listFromSpinBox.value(), self.listToSpinBox.value())
-				self.rangeChanged = False
+				self.prevRangeValues = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
+				self.rangeValuesChanged = False
 			
 			self.progressBar.setVisible(False)
 
@@ -256,15 +350,44 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			box.exec_()
 			self.back()
 
-	def cmpLinesAndTime(self,listSize):
-		"""Generate a list of a given size, and call the modules for 
-		performance analysis for that list. Save the results.
+	def cmpLinesAndTime(self,paramValue):
+		"""Generate data for the current value of the changing parameter, 
+		and call the modules for performance analysis for that data. Save 
+		the results.
 		Used by updateWizPerformance.
 		"""
-		list = visList()
-		list.generateRandomList(listSize,0,10)
-		self.timeResults = self.timeResults + self.cmpTimer.getTimes(list)
-		self.lineResults = self.lineResults + self.cmpLines.getPerf(list)
+		if self.rangeArgumentType!='Int':
+			genArguments = [int(self.valuesFromTableWidget[i]) for i,arg in enumerate(self.algArgs) if arg[0] == self.rangeArgumentTypeIndex]
+			genIns = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(self.rangeArgumentType)]()
+			eval('apply(genIns.generateRandom'+self.rangeArgumentType+',genArguments)')
+		else:
+			genIns = paramValue
+		
+		print self.nonRangeArgs
+		
+		self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
+		args = ''.join([arg+',' for arg in self.nonRangeArgs])[:-1]
+		self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
+
+		print args
+		
+		self.timeResults = self.timeResults + self.cmpTimer.getTimes(args)
+		self.lineResults = self.lineResults + self.cmpLines.getPerf(args)
+
+	def generateNonRangeArguments(self):
+		#TO-DO!!!: duplicate arguments when generating non range lists: produces 3 lists instead of one
+		# because there are 3 arguments for the list. Need to fix this soon as posible.
+		self.nonRangeArgs = []
+		for i,arg in enumerate(self.algArgs):
+			if arg[0] != self.rangeArgumentTypeIndex:
+				if arg[1] != 'Int':
+					genArguments = [int(self.valuesFromTableWidget[i]) for i,a in enumerate(self.algArgs) if a[0] == arg[0]]
+					argumentType = arg[1]
+					genIns = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(argumentType)]()
+					eval('apply(genIns.generateRandom'+argumentType+',genArguments)')
+					self.nonRangeArgs.append(str(genIns))
+				elif arg[1] == 'Int':
+					self.nonRangeArgs.append(str(int(self.valuesFromTableWidget[i])))
 
 	# SAVE THE RESULTS OBTAINED THROUGH THE WIZARD
 	

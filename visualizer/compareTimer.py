@@ -5,14 +5,14 @@ class CompareTimer():
 	def __init__(self,filenames, funcnames, listSizes, algnames, imgfilename, nrexec):
 		self.filenames, self.funcnames, self.listSizes, self.algnames, self.imgfilename, self.nrexec = filenames, funcnames, listSizes, algnames, imgfilename, nrexec
 
-	def getTimes(self,list):
-		"""For each algorithm and list, call getTime
+	def getTimes(self,arguments):
+		"""For each algorithm and arguments, call getTime
 		"""
 		times = []
 		for i in range(len(self.filenames)):
 			filename,funcname = self.filenames[i],self.funcnames[i]
-			tim = self.getTime(filename,funcname,str(list))
-			times.append((self.algnames[i],len(list),tim))
+			tim = self.getTime(filename,funcname,str(arguments))
+			times.append((self.algnames[i],tim))
 		return times
 
 	def getTime(self,filename, funcname, arguments, algdir='algorithms'):
@@ -31,10 +31,10 @@ class CompareTimer():
 		ax = fig.add_subplot(111)
 		a = range(self.listSizes[0],self.listSizes[1])
 		for i in range(len(self.filenames)):
-			values = [timeResults[j][2] for j in range(len(timeResults)) if timeResults[j][0] == self.algnames[i]]
+			values = [timeResults[j][1] for j in range(len(timeResults)) if timeResults[j][0] == self.algnames[i]]
 			ax.plot(a,values)
 		leg = [self.algnames[i] for i in range(len(self.algnames))]
 		ax.legend(tuple(leg),'upper center', shadow=True)
-		ax.set_xlabel('List Size')
+		ax.set_xlabel('Range')
 		ax.set_ylabel('Time')
 		fig.savefig(self.imgfilename)

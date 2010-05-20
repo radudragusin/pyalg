@@ -164,7 +164,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 				self.algOptionsDockWidget.show()
 				
 				algIndex = [confIndex for confIndex in range(len(self.algConf))\
-				  if algName in self.algConf[confIndex][1]][0]
+				  if algName in [self.algConf[confIndex][1]]][0]
 				
 				self.argumentsTabWidget.clear()
 				self.addArgumentTabs(eval(self.algConf[algIndex][4]))
