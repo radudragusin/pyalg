@@ -6,63 +6,128 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import random as r
 
-class Tree():
-    def __init__ (self, children=[]):
-        self.children = children
+class Tree(object):
+    def __init__ (self, children = None, content = None):
+        """Initialise the Tree object"""
+        if not children:
+            self.children = []
+        else:
+            self.children = children
+        if not content:
+            self.content = ''
+        else:
+            self.content = content
+        # Initialises visualisation related options
         plt.ion()
         self.G=nx.Graph()
+    
+    def clear(self):
+        """Clear the Tree"""
+        self.setChildren([])
+        self.G = nx.Graph()
+        
+    def getContent(self):
+        """Return content"""
+        return self.content
+    
+    def setContent(self, content):
+        """Set content"""
+        self.content = content
+        
     def getChildren(self):
+        """Return all children"""
         return self.children
+        
     def setChildren(self, children):
+        """Set new children to Tree"""
         self.children = children
-    def addChild(self, child):
+        
+    def addChild(self, child, index=None):
+        """Add new child to Tree"""
         self.children.append(child)
-    def removeChild(self):
-        self.children.pop()
+        
+    def removeChild(self, index):
+        """Remove a child specified by the index"""
+        if(self.children.__len__() > index and index > -1):
+            del self.children[index]
+        
+    def generateRandomTree(self, numberofvertices = 10, numberofleafs = 5):
+        """Generates a random Tree"""
+        
+        def maybeAddLeaf(t, content):
+            """Recursively (and randomly) goes through the Tree and add a Leaf"""
+            index = r.randint(0,len(t.getChildren()))
+            if(index == len(t.getChildren())):
+                index = r.randint(0,len(t.getChildren()))
+                first = t.getChildren()[:index]
+                last = t.getChildren()[index:]
+                t.setChildren(first + [Leaf(content = 'L')] + last)
+            else:
+                if(isinstance(t.getChildren()[index], Tree)):
+                    maybeAddLeaf(t.getChildren()[index], content)
+                else:
+                    maybeAddLeaf(t, content)
+                    
+        def maybeAddNode(t):
+            """Recursively (and randomly) goes through the Tree and add a Node"""
+            index = r.randint(0,len(t.getChildren()))
+            if(index == len(t.getChildren())):
+                index = r.randint(0,len(t.getChildren()))
+                first = t.getChildren()[:index]
+                last = t.getChildren()[index:]
+                t.setChildren(first + [Tree(children = None, content = 'T')] + last)
+            else:
+                maybeAddNode(t.getChildren()[index])
+        
+        # Clear the Tree
+        self.clear()
+        # Add children to the tree        
+        for i in range(numberofvertices-1):
+            maybeAddNode(self)
+        for i in range(numberofleafs):
+            maybeAddLeaf(self, i)
 
-    def vizMe(self, figNum=1):
+    def visualise(self, figNum=1, markVertices=None, withLabels = False, structured=False):
         '''Visualize the tree'''
         
-        def getEdges(tree,p=0,num=0):
+        def getEdges(t,p=-1,num=0):
             '''Return list of edges for drawing the tree'''
-            this = num
-            if(p != this):
-                e = [(p,this)]
-            else:
-                e = []
-            for t in tree.children:
-                if not isinstance(t, Leaf):
-                    res = getEdges(t,this,num+1)
+            if(isinstance(t,Tree)):
+                if(p != -1):
+                    edges = [(p,num)]
                 else:
-                    #We reached a leaf
-                    if(p!=num):
-                        res = [[(this,num+1)],num+1]
-                    else:
-                        res = []
-                num = res[1]
-                e += res[0]
-            if(p != this):
-                return [e, num]
+                    edges = []
+                this = num
+                for child in t.getChildren():
+                    if(child != None):
+                        edges += getEdges(child,this,num+1)
+                        p,num = edges[-1]
+                return edges
             else:
-                return e
-                
+                return [(p,num)]
+        
+        ### START - Functions used for calculating a more intelligent positioning of the tree's nodes        
         def fam(tree):   
             '''Returns a list with the number of familymembers on each level below the given root.'''        
             res = []
-            if not isinstance(tree, Leaf):
-                if(tree.children == []):
+            if isinstance(tree, Tree):
+                if(tree.getChildren() == []):
                     return []
                 else:
-                    for child in tree.children:
+                    for child in tree.getChildren():
                             res.append(fam(child))                  
                     addedRes = addList(res)
-                    return [len(tree.children)] + addedRes
+                    return [len(tree.getChildren())] + addedRes
             else:
                 #We reached leaf
-                return []
+                return res
                 
-        def getPercentage(lst):
+        def getPercentage(tree):
             '''Calculates how much space a given child should recieve, to draw a nice tree'''
+            #Get the family of all children
+            lst = []
+            for t in tree.getChildren():
+                lst.append(fam(t))
             tmp = []
             totals = addList(lst)
             for i in range(0,len(lst)):
@@ -80,76 +145,147 @@ class Tree():
                 return tmp 
                 
         def addList(lst):
+            """Returns a list with the sum of the values 
+            for every index in the Lists 
+            given a List of Lists with integers"""
             tmp = []
             for l in lst:
                 for i in range(0,len(l)):
-                    try:
+                    if(len(tmp)>i):
                         tmp[i] += l[i]
-                    except:
+                    else:
                         tmp.append(l[i])
             return tmp
-
-        def getCount(tree):
-            '''Calculates the number of nodes'''
-            c = 1
-            if not isinstance(tree, Leaf):
-                for t in tree.children:
-                    c += getCount(t)
-            return c
-
-        def pos(tree,num=0, ph=0, pw=0, space=1):
-            '''Recursively calculates the position of the nodes in the tree'''
-            d = {num:(pw,ph)}
-            edge = pw-(space/2.0)
-            deepNodeCount = []
-            #Get the family of all children
-            for t in tree.children:
-                deepNodeCount.append(fam(t))
-            #Calculate the percentage(width) each child should recieve in the tree
-            perc = getPercentage(deepNodeCount)
-            c = 0
-            #Calculate positions for all children, and family recursively
-            for t in tree.children:
-                l = float(space)*perc[c]
-                if not isinstance(t, Leaf):
-                    res = pos(t,num+1, ph-1, edge+(l/2.0), l)
-                else:
-                    #We reached a leaf
-                    res = [{num+1:(edge+(l/2.0),ph-1)}, num+1]
-                edge += l
-                c += 1
-                num = res[1]
-                d.update(res[0])
-            return [d, num]
         
-        def getPos(tree,num=0, ph=0, pw=0, space=1):
-            '''Creates a position dictionary'''
-            p = pos(tree, num, ph, pw, space)
-            return p[0]
-
-        ##VISUALIZE##
+        def getPosAndObjectListsStructured(tree,num=0, ph=0, pw=0, space=1):
+            """Returns a position dictionary, 
+            a list with the node Ids, one with the Leaf Ids,
+            a dictionary with labels
+            and the id of the last added node.
+            The positions are calculated trying to draw a more structured tree""" 
+            d = {num:(pw,ph)}
+            labels = {num:tree.getContent()}
+            nodeList = [num]
+            leafList = []            
+            spaceBuf = float(space)*0.05
+            l = pw-(float(space)/2.0) + spaceBuf
+            if(len(tree.getChildren()) > 0):
+                nodeSpace = (float(space)*0.9)/float(len(tree.getChildren()))
+            else:
+                nodeSpace = (float(space)*0.9)
+            for t in tree.getChildren():
+                l += nodeSpace/2
+                if(t != None):
+                    num += 1
+                    if isinstance(t, Tree):
+                        nList, lList, res, resLabels, num = getPosAndObjectListsStructured(t,num, ph-1, l, nodeSpace)
+                        nodeList += nList
+                        leafList += lList
+                    else:
+                        #We reached a leaf
+                        res = {num:(l,ph-1)}
+                        resLabels = {num:t.getContent()}
+                        leafList.append(num)
+                    d.update(res)
+                    labels.update(resLabels)
+                l += nodeSpace/2
+            return nodeList, leafList, d, labels, num
+        
+        def getPosAndObjectLists(tree,num=0, ph=0, pw=0, space=1):
+            """Returns a position dictionary, 
+            a list with the node Ids, one with the Leaf Ids,
+            a dictionary with labels
+            and the id of the last added node.
+            The positions are calculated trying to draw a nice looking tree"""   
+            d = {num:(pw,ph)}
+            labels = {num:tree.getContent()}
+            nodeList = [num]
+            leafList = []
+            edge = pw-(space/2.0)
+            
+            #Calculate the percentage(width) each child should recieve in the tree
+            perc = getPercentage(tree)
+            c = 0
+            #Calculate positions for all getChildren(), and family recursively
+            for t in tree.getChildren():
+                l = float(space)*perc[c]
+                if(t != None):
+                    num += 1
+                    if isinstance(t, Tree):
+                        nList, lList, res, resLabels, num = getPosAndObjectLists(t,num, ph-1, edge+(l/2.0), l)
+                        nodeList += nList
+                        leafList += lList
+                    else:
+                        #We reached a leaf
+                        res = {num:(edge+(l/2.0),ph-1)}
+                        resLabels = {num:t.getContent()}
+                        leafList.append(num)
+                    c += 1
+                    d.update(res)
+                    labels.update(resLabels)                
+                edge += l
+            return nodeList, leafList, d, labels, num
+        
+        ### END - Functions used for calculating a more intelligent positioning of the tree's nodes
+                
+                    
+                    
+        # Start visualisation
         plt.figure(figNum)
         plt.clf()
-        plt.axis('on')
+        plt.axis('off')
         self.G.clear()
-        p = getPos(self)
+        # Calc position of nodes and edges
+        if(structured):
+            lstOfNodes,lstOfLeafs,totalPos, labels, lastAddedObject = getPosAndObjectListsStructured(self)        
+        else:
+            lstOfNodes,lstOfLeafs,totalPos, labels, lastAddedObject = getPosAndObjectLists(self)
         e = getEdges(self)
-        for i in range(0,getCount(self)):
+        # Add edges and nodes to nx.graph
+        for i in lstOfLeafs:
             self.G.add_node(i)
-        self.G.add_edges_from(e)
-        nx.draw_networkx(self.G, p)
-
-    
+        for i in lstOfNodes:
+            self.G.add_node(i)
+        for x,y in e:
+            self.G.add_edge(x,y)
+        # Draw the nodes
+        if(markVertices == None):
+            # Don't mark any vertices
+            if(withLabels):
+                nx.draw_networkx(self.G, totalPos, nodelist=lstOfLeafs,labels=labels,node_color='#557A66')
+                nx.draw_networkx(self.G, totalPos, nodelist=lstOfNodes,labels=labels,node_color='#272E2E')
+            else:
+                nx.draw_networkx(self.G, totalPos, nodelist=lstOfLeafs,node_color='#557A66')
+                nx.draw_networkx(self.G, totalPos, nodelist=lstOfNodes,node_color='#272E2E')
+        else:
+            # Mark specific vertices
+            unmarkedNodes = list(set(lstOfNodes) - set(markVertices))
+            unmarkedLeafs = list(set(lstOfLeafs) - set(markVertices))
+            markedNodes = list(set(lstOfNodes) - set(unmarkedNodes))
+            markedLeafs = list(set(lstOfLeafs) - set(unmarkedLeafs))
+            if(withLabels):
+                nx.draw_networkx(self.G, totalPos, nodelist=unmarkedLeafs,labels=labels,node_color='#557A66')
+                nx.draw_networkx(self.G, totalPos, nodelist=unmarkedNodes,labels=labels,node_color='#272E2E')
+                nx.draw_networkx(self.G, totalPos, nodelist=markedLeafs,labels=labels,node_size=700,node_color='#557A66')
+                nx.draw_networkx(self.G, totalPos, nodelist=markedNodes,labels=labels,node_size=700,node_color='#272E2E')
+            else:
+                nx.draw_networkx(self.G, totalPos, nodelist=unmarkedLeafs,node_color='#557A66')
+                nx.draw_networkx(self.G, totalPos, nodelist=unmarkedNodes,node_color='#272E2E')
+                nx.draw_networkx(self.G, totalPos, nodelist=markedLeafs,node_size=700,node_color='#557A66')
+                nx.draw_networkx(self.G, totalPos, nodelist=markedNodes,node_size=700,node_color='#272E2E')
                 
 class Leaf:
-    def __init__(self, content):
-        self.content = content        
+    def __init__(self, content = None):
+        """Initialises the Leaf"""
+        if not content:
+            self.content = ''
+        else:
+            self.content = content   
+             
     def getContent(self):
+        """Returns the content of the Leaf"""
         return self.content
-    def setContent(self,content):
-        self.content = content
         
-t1 = Tree([Tree([Tree([Leaf('a'),Leaf('b')]),Tree([Leaf('c'),Leaf('d')])]),Tree([Leaf('e'),Leaf('f')])])
-t2 = Tree([Tree([Tree([Leaf('a'),Leaf('b')]),Tree([Leaf('c'),Leaf('d')])]),Tree([Leaf('e'),Leaf('f')]), Tree([Tree([Leaf('g'),Leaf('h')]), Tree([Tree([Leaf('i'),Leaf('j'),Leaf('k'),Leaf('l')])])])])
-t3 = Tree([Tree([Tree([Leaf('a'),Leaf('b')]),Tree([Leaf('c'),Leaf('d')])]),Tree([Leaf('e'),Leaf('f')]), Tree([Tree([Leaf('g'),Leaf('h'),Tree([Tree([Leaf('i'),Leaf('j'),Leaf('k'),Leaf('l')])])]), Tree([Tree([Leaf('m'),Leaf('n'),Leaf('o'),Leaf('p')])])])])
-
+    def setContent(self,content):
+        """Set the content of the Leaf"""
+        self.content = content

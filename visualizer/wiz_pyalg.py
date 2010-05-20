@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Wed May 19 18:56:32 2010
+# Created: Wed May 19 21:29:10 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -206,8 +206,8 @@ class Ui_Wizard(object):
         self.listSizeLabel.setText(QtGui.QApplication.translate("Wizard", "List size", None, QtGui.QApplication.UnicodeUTF8))
         self.listToLabel.setText(QtGui.QApplication.translate("Wizard", "To:", None, QtGui.QApplication.UnicodeUTF8))
         self.listFromLabel.setText(QtGui.QApplication.translate("Wizard", "From:", None, QtGui.QApplication.UnicodeUTF8))
-        self.wizardPage5.setTitle(QtGui.QApplication.translate("Wizard", "Step 4:", None, QtGui.QApplication.UnicodeUTF8))
-        self.wizardPage5.setSubTitle(QtGui.QApplication.translate("Wizard", "Benchmark results", None, QtGui.QApplication.UnicodeUTF8))
+        self.wizardPage5.setTitle(QtGui.QApplication.translate("Wizard", "Final Step:", None, QtGui.QApplication.UnicodeUTF8))
+        self.wizardPage5.setSubTitle(QtGui.QApplication.translate("Wizard", "The benchmark results", None, QtGui.QApplication.UnicodeUTF8))
         self.page5Label.setText(QtGui.QApplication.translate("Wizard", "Results obtained by running the algorithms with the data provided in the previous steps:", None, QtGui.QApplication.UnicodeUTF8))
         self.perfTabWidget.setTabText(self.perfTabWidget.indexOf(self.lineTab), QtGui.QApplication.translate("Wizard", "Line Count", None, QtGui.QApplication.UnicodeUTF8))
         self.perfTabWidget.setTabText(self.perfTabWidget.indexOf(self.timeTab), QtGui.QApplication.translate("Wizard", "Performance Time", None, QtGui.QApplication.UnicodeUTF8))

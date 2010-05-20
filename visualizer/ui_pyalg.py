@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Wed May 19 12:12:33 2010
+# Created: Wed May 19 22:03:13 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,8 @@ class Ui_MainWindow(object):
         self.menuTrace_Plot_Type.setObjectName("menuTrace_Plot_Type")
         self.menuArguments_Input = QtGui.QMenu(self.menuPreferences)
         self.menuArguments_Input.setObjectName("menuArguments_Input")
+        self.menuBenchmark_Wizard = QtGui.QMenu(self.menuPreferences)
+        self.menuBenchmark_Wizard.setObjectName("menuBenchmark_Wizard")
         self.menuHelp = QtGui.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
         self.menuEdit = QtGui.QMenu(self.menubar)
@@ -272,15 +274,24 @@ class Ui_MainWindow(object):
         self.websiteAction.setObjectName("websiteAction")
         self.keyShortcutsAction = QtGui.QAction(MainWindow)
         self.keyShortcutsAction.setObjectName("keyShortcutsAction")
+        self.saveAction = QtGui.QAction(MainWindow)
+        self.saveAction.setObjectName("saveAction")
+        self.nrBenchExecAction = QtGui.QAction(MainWindow)
+        self.nrBenchExecAction.setObjectName("nrBenchExecAction")
+        self.actionW = QtGui.QAction(MainWindow)
+        self.actionW.setObjectName("actionW")
         self.menuTrace_Plot_Type.addAction(self.linePlotAction)
         self.menuTrace_Plot_Type.addAction(self.barPlotAction)
         self.menuTrace_Plot_Type.addAction(self.filledBarPlotAction)
         self.menuArguments_Input.addAction(self.manualArgsAction)
         self.menuArguments_Input.addAction(self.autoArgsAction)
+        self.menuBenchmark_Wizard.addAction(self.nrBenchExecAction)
         self.menuPreferences.addAction(self.menuArguments_Input.menuAction())
         self.menuPreferences.addAction(self.menuTrace_Plot_Type.menuAction())
+        self.menuPreferences.addAction(self.menuBenchmark_Wizard.menuAction())
         self.menuPreferences.addAction(self.savePreferencesAction)
         self.menuOptions.addAction(self.newAction)
+        self.menuOptions.addAction(self.saveAction)
         self.menuOptions.addAction(self.menuPreferences.menuAction())
         self.menuOptions.addAction(self.quitAction)
         self.menuHelp.addAction(self.helpAction)
@@ -308,6 +319,7 @@ class Ui_MainWindow(object):
         self.menuPreferences.setTitle(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTrace_Plot_Type.setTitle(QtGui.QApplication.translate("MainWindow", "Trace Plot Type", None, QtGui.QApplication.UnicodeUTF8))
         self.menuArguments_Input.setTitle(QtGui.QApplication.translate("MainWindow", "Arguments Input", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuBenchmark_Wizard.setTitle(QtGui.QApplication.translate("MainWindow", "Benchmark Wizard", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTools.setTitle(QtGui.QApplication.translate("MainWindow", "Tools", None, QtGui.QApplication.UnicodeUTF8))
@@ -357,5 +369,8 @@ class Ui_MainWindow(object):
         self.savePreferencesAction.setText(QtGui.QApplication.translate("MainWindow", "Save Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.websiteAction.setText(QtGui.QApplication.translate("MainWindow", "Website", None, QtGui.QApplication.UnicodeUTF8))
         self.keyShortcutsAction.setText(QtGui.QApplication.translate("MainWindow", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
+        self.saveAction.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.nrBenchExecAction.setText(QtGui.QApplication.translate("MainWindow", "Number executions", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionW.setText(QtGui.QApplication.translate("MainWindow", "w", None, QtGui.QApplication.UnicodeUTF8))
 
 from PyQt4 import QtWebKit

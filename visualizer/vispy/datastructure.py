@@ -18,7 +18,7 @@ class GraphDatastructure():
     
     def getEdges(self):  abstract()
     
-    def degreelist(self):  abstract()
+    def degreeList(self):  abstract()
     
     def getAdjEdges(self, node_id): abstract()
 
@@ -28,7 +28,8 @@ class GraphDatastructure():
     
     # the following functions are following a strict naming scheme across
     # our datastructures
-    def visualise(self, figNum=1, markEdges=[], markNodes=[]): abstract()
+    def visualise(self, figNum=1, markEdges=[], markNodes=[], savefig=None,
+        savefig_format='png', vertexLabels=None): abstract()
 
     def clearVisualisation(self): abstract()
         

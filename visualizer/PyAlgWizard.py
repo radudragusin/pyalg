@@ -25,6 +25,9 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		self.justStarted = True
 		self.rangeChanged = False
 		
+		self.imgfilename = "htmlfiles/algPerf.svg"
+		self.imgfilename2 = "htmlfiles/algTime.svg"
+		
 		self.connect(self, SIGNAL("currentIdChanged(int)"), self.updateWizPage)
 		self.connect(self, SIGNAL("customButtonClicked(int)"), self.saveWizResults)
 		self.connect(self.listFromSpinBox, SIGNAL("valueChanged(int)"), self.setListSizeRangeChanged)
@@ -36,7 +39,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""Connect the page updating functionality with the pages, 
 		based on the current page.
 		Update only when parameters changed.
-		TO-DO: add more data generators and interface for giving the args
+		TO-DO: add more interface for giving the args
 		"""
 		self.setOption(QWizard.HaveCustomButton1,False)
 		
@@ -44,6 +47,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			#Page 2 - Step 1
 			self.updateWizAlgTree() 
 			self.justStarted = False
+			self.outputSaved = False
 		elif id == 2:
 			#Page 3 - Step 2
 			if self.prevSelectedAlgorithms != self.selectedAlgorithms:
@@ -51,21 +55,15 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				self.prevSelectedAlgorithms = self.selectedAlgorithms
 				self.algsChanged = True
 				self.prevLineSelections = []
-		elif id == 3:
-			#Page 4 - Step 3
-			if self.algsChanged and self.prevLineSelections != self.lineSelections:
-				self.algsChanged = False
-				self.prevRangeValues = ()
-				self.doPerformance = True
 		elif id == 4:
-			#Page 5 - Step 4
+			#Page 5 - Step 4 (Final Step)
 			#TO-DO: check if arguments changed for all types of arguments 
 			#(currently supporting only modification of range for list arg)
 			self.setOption(QWizard.HaveCustomButton1)
 			self.setButtonText(QWizard.CustomButton1, "Save All")
-			if self.doPerformance or self.rangeChanged:
+			if self.algsChanged or self.rangeChanged or self.prevLineSelections != self.lineSelections:
 				self.updateWizPerformance()
-				self.doPerformance = False
+				self.algsChanged = False
 	
 	def validateCurrentPage(self):
 		"""Reimplementation of the validateCurrentPage(), verifies if all arguments
@@ -75,16 +73,24 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		"""
 		id = self.currentId()
 		if id == 1:
-			#Step1: Verify that at least one algorithm was selected 
-			if len(self.algTreeWiz.selectedItems()) >= 1:
-				self.prevSelectedAlgorithms = self.selectedAlgorithms
-				self.selectedAlgorithms = [str(el.text(0)) for el in self.algTreeWiz.selectedItems()]
+			# Step1: Verify that at least one algorithm was selected and that the
+			#selected algorithms are compatible.
+			selectedItems = self.algTreeWiz.selectedItems()
+			if len(selectedItems) >= 1:
+				if len(selectedItems) == 1 or self.areCompatibleAlgorithms(selectedItems):
+					self.prevSelectedAlgorithms = self.selectedAlgorithms
+					self.selectedAlgorithms = [str(el.text(0)) for el in selectedItems]
+				else:
+					QMessageBox(QMessageBox.Warning, "Warning", 
+					  "The algorithms you select must have the same type of arguments, given in the same order.")\
+					  .exec_()
+					return False
 			else:
 				QMessageBox(QMessageBox.Warning, "Warning", 
 				  "At least one algorithm must be selected.").exec_()
 				return False
 		elif id == 2:
-			#Step 2: Verify that the line selections are valid
+			# Step 2: Verify that the line selections are valid
 			lineSelections = []
 			for i in range(len(self.lineSelectionsTableViews)):
 				tableView = self.lineSelectionsTableViews[i]
@@ -96,6 +102,35 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 				QMessageBox(QMessageBox.Warning, "Warning", 
 				  "All algorithms selected for comparison must have at least one line selected.").exec_()
 				return False
+		elif id == 4:
+			# Final Step: Ask user to save the results, if he did not already do so.
+			if self.outputSaved == False:
+				reply = QMessageBox.question(self, "Reminder","You did not save the results. "+
+				"You can save the images by clicking on the <i>Save All</i> button in the last page "+
+				"of the wizard.\nWould you like to return to the wizard?",
+				QMessageBox.Yes, QMessageBox.No)
+				if reply == QMessageBox.Yes:
+					return False
+		return True
+	
+	def areCompatibleAlgorithms(self, selectedItems):
+		"""The algorithms are compatible if they support the same types of 
+		arguments and are given in the same order.
+		"""
+		selectedAlgorithmsNames = [str(el.text(0)) for el in selectedItems]
+		
+		algName = selectedAlgorithmsNames[0]
+		prevAlgArgs = [self.algConf[algIndex][4] for algIndex in range(len(self.algConf))\
+		  if algName in self.algConf[algIndex][1]][0]
+		
+		for i in range(1,len(selectedAlgorithmsNames)):
+			algName = selectedAlgorithmsNames[i]
+			algArgs = [self.algConf[algIndex][4] for algIndex in range(len(self.algConf))\
+			  if algName in self.algConf[algIndex][1]][0]
+			if algArgs != prevAlgArgs:
+				return False
+			prevAlgArgs = algArgs
+			
 		return True
 	
 	def setListSizeRangeChanged(self):
@@ -142,7 +177,7 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			file = open(os.path.join(self.parent.algDir,filename),'r')
 			lines = file.readlines()
 			file.close()
-			lines = [line.rstrip() for line in lines if line.strip() != '']
+			lines = [line.rstrip() for line in lines]
 			resultTableView.setModel(QStringListModel(QStringList(lines)))
 			resultTableView.setShowGrid(False)
 			resultTableView.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -160,13 +195,9 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 		parameters (line selections, size ranges)
 		TO-DO: Done for lists only. Do it for other arguments.
 		"""
-		self.imgfilename = "htmlfiles/algPerf.svg"
-		self.imgfilename2 = "htmlfiles/algTime.svg"
 		listSizes = (self.listFromSpinBox.value(), self.listToSpinBox.value())
-		algnames = [sel[0] for sel in self.lineSelections]
-		lines = [int(sel[1][0]) for sel in self.lineSelections]
-		
-		print algnames, lines
+		algnames = [linesel[0] for linesel in self.lineSelections]
+		lines = [[int(sel) for sel in linesel[1]] for linesel in self.lineSelections]
 		
 		filenames, funcnames = [], []
 		for algName in algnames:
@@ -175,10 +206,10 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			filenames.append(filename)
 			funcnames.append(funcname)
 		
-		self.cmpTimer = CompareTimer(filenames, funcnames, listSizes, algnames, self.imgfilename2,1)
-		self.timeResults = []
 		self.cmpLines = CompareTracer(filenames, funcnames, listSizes, lines, algnames, self.imgfilename)
 		self.lineResults = []
+		self.cmpTimer = CompareTimer(filenames, funcnames, listSizes, algnames, self.imgfilename2,self.parent.nrBenchExec)
+		self.timeResults = []
 		self.pictureLineLabel.setPixmap(QPixmap())
 		self.pictureTimeLabel.setPixmap(QPixmap())
 		self.progressBar.setVisible(True)
@@ -228,9 +259,10 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 	def cmpLinesAndTime(self,listSize):
 		"""Generate a list of a given size, and call the modules for 
 		performance analysis for that list. Save the results.
-		Used by updateWizPerformance"""
+		Used by updateWizPerformance.
+		"""
 		list = visList()
-		list.generaterandomlist(listSize,0,10)
+		list.generateRandomList(listSize,0,10)
 		self.timeResults = self.timeResults + self.cmpTimer.getTimes(list)
 		self.lineResults = self.lineResults + self.cmpLines.getPerf(list)
 
@@ -257,3 +289,4 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 					box.exec_()
 					return
 				box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved files.").exec_()
+				self.outputSaved = True

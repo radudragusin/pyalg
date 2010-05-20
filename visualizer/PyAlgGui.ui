@@ -64,11 +64,19 @@
       <addaction name="manualArgsAction"/>
       <addaction name="autoArgsAction"/>
      </widget>
+     <widget class="QMenu" name="menuBenchmark_Wizard">
+      <property name="title">
+       <string>Benchmark Wizard</string>
+      </property>
+      <addaction name="nrBenchExecAction"/>
+     </widget>
      <addaction name="menuArguments_Input"/>
      <addaction name="menuTrace_Plot_Type"/>
+     <addaction name="menuBenchmark_Wizard"/>
      <addaction name="savePreferencesAction"/>
     </widget>
     <addaction name="newAction"/>
+    <addaction name="saveAction"/>
     <addaction name="menuPreferences"/>
     <addaction name="quitAction"/>
    </widget>
@@ -728,6 +736,21 @@
   <action name="keyShortcutsAction">
    <property name="text">
     <string>Keyboard Shortcuts</string>
+   </property>
+  </action>
+  <action name="saveAction">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="nrBenchExecAction">
+   <property name="text">
+    <string>Number executions</string>
+   </property>
+  </action>
+  <action name="actionW">
+   <property name="text">
+    <string>w</string>
    </property>
   </action>
  </widget>

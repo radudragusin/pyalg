@@ -19,7 +19,7 @@ class CompareTracer():
 		results = []
 		for i in range(len(self.funcnames)):
 			function = self.functions[i]
-			lineSel = self.lineSelections[i]
+			lineSels = self.lineSelections[i]
 
 			f = open('flow2.txt','w')
 			sys.stdout = f
@@ -33,7 +33,11 @@ class CompareTracer():
 			for count in counts:
 				if p in count:
 					linecounts[count[1]] = counts[count]
-			results.append((self.filenames[i],len(list),linecounts[lineSel]))
+			for lineSel in lineSels:
+				try:
+					results.append((self.algnames[i],lineSel,linecounts[lineSel]))
+				except KeyError:
+					results.append((self.algnames[i],lineSel,0))
 		return results
 
 	def createGraph(self,perfResults):
@@ -44,10 +48,13 @@ class CompareTracer():
 		fig = plt.figure()
 		ax = fig.add_subplot(111)
 		a = range(self.listSizes[0],self.listSizes[1])
-		for i in range(len(self.filenames)):
-			values = [perfResults[j][2] for j in range(len(perfResults)) if perfResults[j][0] == self.filenames[i]]
-			ax.plot(a,values)
-		leg = [self.algnames[i]+" - Line "+str(self.lineSelections[i]) for i in range(len(self.algnames))]
+		leg = []
+		for i in range(len(self.algnames)):
+			currAlgName = self.algnames[i]
+			for currLineSel in self.lineSelections[i]:
+				values = [perfResults[j][2] for j in range(len(perfResults)) if currAlgName == perfResults[j][0] and currLineSel == perfResults[j][1]]
+				ax.plot(a,values)
+				leg.append(currAlgName+' - Line '+str(currLineSel))
 		ax.legend(tuple(leg),'upper center', shadow=True)
 		ax.set_xlabel('List Size')
 		ax.set_ylabel('Line Count')

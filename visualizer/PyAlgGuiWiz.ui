@@ -282,10 +282,10 @@ To continue, click Next.</string>
   </widget>
   <widget class="QWizardPage" name="wizardPage5">
    <property name="title">
-    <string>Step 4:</string>
+    <string>Final Step:</string>
    </property>
    <property name="subTitle">
-    <string>Benchmark results</string>
+    <string>The benchmark results</string>
    </property>
    <attribute name="pageId">
     <string notr="true">4</string>

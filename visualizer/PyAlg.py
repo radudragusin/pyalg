@@ -64,6 +64,11 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.filledBarPlotAction, SIGNAL("triggered()"), self.setFilledBarPlotType)
 		self.connect(self.manualArgsAction, SIGNAL("triggered()"), self.setManualInputType)
 		self.connect(self.autoArgsAction, SIGNAL("triggered()"), self.setAutoInputType)
+		self.connect(self.nrBenchExecAction, SIGNAL("triggered()"), self.setNrBenchmarkExecutions)
+		self.connect(self.saveAction, SIGNAL("triggered()"), self.saveHtml)
+		
+		self.connect(self.webView, SIGNAL("urlChanged(QUrl)"), self.enableSaveAction)
+	
 	
 	### INITIAL SETUP
 		
@@ -112,6 +117,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.autoArgsAction.setChecked(True)
 		self.inputType = 'auto' # default value
 		
+		self.nrBenchExec = 1
+		
 	def updateAlgTree(self,sep=';'):
 		"""Read the algorithms configuration file which includes the 
 		information necessary for populating the algorithm tree view. 
@@ -143,20 +150,6 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 					children  = self.algConf[i][1]
 					algTypeWidget.addTopLevelItem(QTreeWidgetItem(algTypeItem, QStringList(children)))
 		self.sections = sections
-		
-	# TO-DO: add data generators for more types of arguments (currently 
-	#implemented: list)
-		
-	### FUNCTIONALITIES FOR THE LIST ALGORITHMS
-		
-	def genList(self, size, lower_bound, upper_bound, distribution='normal'): 
-		"""Generate lists for testing the sorting algorithms.
-		"""
-		if distribution == 'normal':
-			import random
-			return random.sample(xrange(lower_bound,upper_bound), size)
-		else:
-			return []
 		
 	### SHOWING ARGUMENTS INPUT FOR SELECTED ALGORITHM
 	
@@ -240,46 +233,47 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			
 	def updateWebView(self):
 		"""Update the content of the web page displaying the algorithm's 
-		code and analysis. Called when the 'run trace' button was pressed.
-		TO-DO: evaluate the corectness of the arguments for datatypes 
-		other than lists, as soon as the data generators are added.
+		code and analysis. Called when the 'run trace' button is pressed.
+		Get input (manual or automaticaly generated) from each tab,
+		verrify its correctness, send the arguments to the tracer,
+		and show the generated html.
 		"""
+		#TO-DO next: evaluate the corectness of the arguments for datatypes 
+		#other than lists, as soon as the data generators are added.
 		nrOfArgTabs = self.argumentsTabWidget.count()
+		arguments = []
+		# Read input from each tab and verify if it's valid:
 		for i in range(nrOfArgTabs):
 			tab = self.argumentsTabWidget.widget(i)
 			if tab.findChild(QRadioButton, "manualInputRadioButton"+str(i)).isChecked():
-				arguments = str(tab.findChild(QLineEdit, "manualInputLineEdit"+str(i)).text())
+				txt = str(tab.findChild(QLineEdit, "manualInputLineEdit"+str(i)).text())
+				if txt != '':
+					arguments.append(txt)
 			elif tab.findChild(QRadioButton, "autoInputRadioButton"+str(i)).isChecked():
 				genArguments = [tab.findChild(QSpinBox, arg).value() for arg in self.argsDict[i]]
 				arg = self.argsType[i]
-				if arg == 'List':
-					print genArguments
-					genIns = self.availableGeneratorsModules[self.availableGenerators.index(arg)]()
-					eval('apply(genIns.generaterandom'+arg.lower()+',genArguments)')
-					arguments = str(genIns)
+				print genArguments
+				genIns = self.availableGeneratorsModules[self.availableGenerators.index(arg)]()
+				eval('apply(genIns.generateRandom'+arg+',genArguments)')
+				arguments.append(str(genIns))
 			else:
 				return
 			print arguments
-		
+		if len(arguments) != nrOfArgTabs:
+			QMessageBox(QMessageBox.Warning, "Warning", "Not enough arguments").exec_()
+			return
+		# Create the string of arguments:
+		args = ''.join([arg+',' for arg in arguments])[:-1]
+		# Call the tracer on the arguments:
 		try:
-			list = eval(arguments)
-			if type(list) == type([]) and len(list) > 0:
-				try:
-					html_filename = tracer.tracer(self.filename, self.funcname, arguments, plottype = self.tracePlotType)
-					self.webView.setUrl(QUrl(html_filename))
-				except StandardError as detail:
-					box = QMessageBox(QMessageBox.Warning, "Warning", 
-					  "Invalid Code. Please review the code and upload it again.")
-					box.setDetailedText(str(detail))
-					box.exec_()
-			else:
-				QMessageBox(QMessageBox.Warning, "Warning", 
-				  "Input must be a non-empty list. Try something similar to: [3,1,4,9,5]").exec_()
-		except(NameError, SyntaxError):
-			QMessageBox(QMessageBox.Warning, "Warning", 
-			  "Input not a list. Try something similar to: [3,1,4,9,5]").exec_()
+			html_filename = tracer.tracer(self.filename, self.funcname, args, plottype = self.tracePlotType)
+			self.webView.setUrl(QUrl(html_filename))
+		except StandardError as detail:
+			box = QMessageBox(QMessageBox.Warning, "Warning", 
+			  "Invalid Code. Please review the code and upload it again.")
+			box.setDetailedText(str(detail))
+			box.exec_()
 
-	
 	### NEW ALGORITHM DOCK WIDGET FUNCTIONALITIES
 	
 	def updateNewAlgPath(self):
@@ -337,7 +331,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 				file = open(os.path.join(self.visPyDir,filename),'r')
 				lines = file.readlines()
 				file.close()
-				randomGeneratorLine = 'def generaterandom'+filename.split('.')[0].lower()
+				randomGeneratorLine = 'def generateRandom'+filename.split('.')[0].capitalize()
 				codeRandomGeneratorLine = [line for line in lines if randomGeneratorLine in line]
 				if codeRandomGeneratorLine != []:
 					module = filename.split('.')[0]
@@ -585,6 +579,49 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		
 	def setAutoInputType(self):
 		self.inputType = 'auto'
+		
+	def setNrBenchmarkExecutions(self):
+		"""Ask the user for and set the number of execution each algorithm selected in
+		the benchmark wizard should execute.
+		"""
+		(newNrBenchExec,reply) = QInputDialog.getInt(self,"Benchmark Wizard: Nr of executions",
+		  "Number of times each algorithm in the\nbenchmark wizard will be executed:",self.nrBenchExec)
+		if reply and self.nrBenchExec != newNrBenchExec:
+			self.nrBenchExec = newNrBenchExec
+	
+	def enableSaveAction(self,url):
+		"""Enable/disable the save action from the menu based on the state of the webView 
+		TO-DO: Currently not working. Fix this. 
+		"""
+		if self.webView.url() != QUrl('about:blank'):
+			self.saveAction.setEnabled(True)
+		else:
+			self.saveAction.setEnabled(False)
+	
+	def saveHtml(self):
+		"""Save the current html from the web view, together with the svg, css and js files.
+		"""
+		if self.webView.url() != QUrl('about:blank'):
+			browsingStartPoint = os.getenv('USERPROFILE') or os.getenv('HOME')
+			dirname = QFileDialog.getExistingDirectory(self, "Select Directory To Save In", 
+			  browsingStartPoint, QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
+			dirname = str(dirname)
+			if dirname != "":
+				file = os.path.normpath(str(self.webView.url().path()))
+				try:
+					shutil.copyfile(file, os.path.join(dirname, os.path.basename(file)))
+					img = file.replace('.html','.svg')
+					shutil.copyfile(img, os.path.join(dirname, os.path.basename(img)))
+				except StandardError as detail:
+					box = QMessageBox(QMessageBox.Warning, "Error", "Could not save file.")
+					box.setDetailedText(str(detail))
+					box.exec_()
+					return
+				for filename in os.listdir(os.path.dirname(file)):
+					if filename.endswith('.js') or filename.endswith('.css'):
+						shutil.copyfile(os.path.join(os.path.dirname(file),filename), 
+						  os.path.join(dirname, filename))
+				box = QMessageBox(QMessageBox.Information, "Success", "Successfully saved the output.").exec_()
 	
 	def showCompareWiz(self):
 		"""Open and focus on the Compare Algorithms Wizard.
@@ -593,8 +630,9 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		wizard.exec_()
 		
 	def openWebsite(self):
-		"""Opens the project's webiste in a new browser window (uses
-		default internet browser)."""
+		"""Opens the project's wiki in a new browser window (uses
+		default internet browser).
+		"""
 		openWB(website)
 			
 	def closeEvent(self, event):
