@@ -11,10 +11,6 @@ import tracer
 import ui_pyalg
 from PyAlgWizard import *
 
-#from vispy.list import list as visList
-#from vispy.tree import Tree as visTree
-#from vispy.graph import Graph as visGraph
-
 __version__ = "0.0.1"
 website = "http://code.google.com/p/pyalg"
 
@@ -31,6 +27,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.algDir = 'algorithms'
 		
 		self.setupInitView()
+		#self.setAttribute(Qt.WA_AlwaysShowToolTips)
 		
 		self.connect(self.algTree, SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.askAlgorithmInput)
 		
@@ -50,6 +47,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.newAlgAddButton, SIGNAL("clicked()"), self.addNewAlg)
 		
 		self.connect(self.algTree, SIGNAL("itemSelectionChanged()"), self.disableAlgEditing)
+		self.connect(self.webView, SIGNAL("loadFinished(bool)"), self.enableSaveAction)
 		
 		# Menu actions
 		self.connect(self.deleteAction, SIGNAL("triggered()"), self.deleteAlgorithm)
@@ -66,9 +64,6 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.autoArgsAction, SIGNAL("triggered()"), self.setAutoInputType)
 		self.connect(self.nrBenchExecAction, SIGNAL("triggered()"), self.setNrBenchmarkExecutions)
 		self.connect(self.saveAction, SIGNAL("triggered()"), self.saveHtml)
-		
-		self.connect(self.webView, SIGNAL("urlChanged(QUrl)"), self.enableSaveAction)
-	
 	
 	### INITIAL SETUP
 		
@@ -103,6 +98,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.renameAction.setEnabled(False)
 		self.deleteAction.setEnabled(False)
 		self.argumentsAction.setEnabled(False)
+		
+		self.saveAction.setEnabled(False)
 		
 		actionGroup = QActionGroup(self)
 		self.linePlotAction.setActionGroup(actionGroup)
@@ -237,9 +234,10 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		Get input (manual or automaticaly generated) from each tab,
 		verrify its correctness, send the arguments to the tracer,
 		and show the generated html.
+		TO-DO: evaluate the corectness of the arguments before/instead of 
+		calling the tracer and catching errors.
 		"""
-		#TO-DO next: evaluate the corectness of the arguments for datatypes 
-		#other than lists, as soon as the data generators are added.
+		#
 		nrOfArgTabs = self.argumentsTabWidget.count()
 		arguments = []
 		# Read input from each tab and verify if it's valid:
@@ -270,7 +268,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			self.webView.setUrl(QUrl(html_filename))
 		except StandardError as detail:
 			box = QMessageBox(QMessageBox.Warning, "Warning", 
-			  "Invalid Code. Please review the code and upload it again.")
+			  "Could not run code on the given arguments. Review the code and the arguments it takes. \
+			  See <i>Show Details</i> for hints on the problem.")
 			box.setDetailedText(str(detail))
 			box.exec_()
 
@@ -320,7 +319,6 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""Return the list of available function arguments types (and thus generators)
 		- needed for populating the list view of the new algorithm functionality
 		- needed for generating random data
-		TO-DO: remove hard coded list generator !!!
 		TO-DO: verify if only one class
 		"""
 		availableGenerators = ['Int']
@@ -460,10 +458,10 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.newAlgDockWidget.show()
 
 	def disableAlgEditing(self):
-		"""TO-DO: Currently does not work - it should disable the algorithm editing 
-		buttons from the menu when no algorithm is selected, and vice-versa."""
-		currItem = self.algTree.currentItem()
-		if currItem:
+		"""Disable the algorithm editing buttons from the menu when no 
+		algorithm is selected, and vice-versa.
+		"""
+		if self.algTree.currentItem().parent() is not None:
 			self.renameAction.setEnabled(True)
 			self.deleteAction.setEnabled(True)
 			self.argumentsAction.setEnabled(True)
@@ -589,9 +587,8 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		if reply and self.nrBenchExec != newNrBenchExec:
 			self.nrBenchExec = newNrBenchExec
 	
-	def enableSaveAction(self,url):
+	def enableSaveAction(self,ok):
 		"""Enable/disable the save action from the menu based on the state of the webView 
-		TO-DO: Currently not working. Fix this. 
 		"""
 		if self.webView.url() != QUrl('about:blank'):
 			self.saveAction.setEnabled(True)
