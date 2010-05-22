@@ -15,12 +15,11 @@ from templite import Templite
 
 class HtmlReporter(object):
     """HTML reporting."""
-
     def __init__(self):
 		#TO-DO: Handle when template not available
 		self.source_tmpl = Templite(open("htmlfiles/pyfile.html").read(), globals())
 
-    def html_file(self, pyfile, modname, linecounts, flowarray, colorLineOnSelect, plottype, imagetype='svg'):
+    def html_file(self, pyfile, modname, linecounts, flowarray, plottype, imagetype='svg'):
         """Generate a HTML file for one source file.
         """
 
@@ -28,10 +27,6 @@ class HtmlReporter(object):
         htmldir = 'htmlfiles'
         lines = []
         plotvalues = []
-        if colorLineOnSelect:
-            colorOnSelect = "changeColor(this.id)"
-        else:
-            colorOnSelect = ""
 
         for lineno, line in enumerate(source_token_lines(source)):
             lineno += 1

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Sat May 22 16:14:53 2010
+# Created: Sat May 22 17:18:16 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -347,9 +347,7 @@ class Ui_MainWindow(object):
         self.newAlgArgDownButton.setText(QtGui.QApplication.translate("MainWindow", "v", None, QtGui.QApplication.UnicodeUTF8))
         self.newAlgArgDelButton.setText(QtGui.QApplication.translate("MainWindow", "-", None, QtGui.QApplication.UnicodeUTF8))
         self.newAlgArgsLabel0.setText(QtGui.QApplication.translate("MainWindow", "Algorithm arguments:", None, QtGui.QApplication.UnicodeUTF8))
-        self.newAlgAddButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Add algorithm to library", None, QtGui.QApplication.UnicodeUTF8))
         self.newAlgAddButton.setText(QtGui.QApplication.translate("MainWindow", "Add", None, QtGui.QApplication.UnicodeUTF8))
-        self.newAlgCancelButton.setToolTip(QtGui.QApplication.translate("MainWindow", "Abort adding algorithm to library", None, QtGui.QApplication.UnicodeUTF8))
         self.newAlgCancelButton.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.aboutAction.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
         self.helpAction.setText(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))

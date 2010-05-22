@@ -1,10 +1,18 @@
+#
+# Authors: Radu Dragusin and Paula Petcu
+# Insitute of Computer Science, Copenhagen University, Denmark
+#
+# LICENSED UNDER: GNU General Public License v2
+#
+
 import os
 import sys
 import trace
 
-class CompareTracer():
+class LineCountsBenchmarker():
 	def __init__(self, filenames, funcnames, listSizes, lineSelections, algnames, imgfilename,algdir='algorithms'):
-		self.filenames, self.funcnames, self.listSizes, self.lineSelections, self.algnames, self.imgfilename, self.algdir = filenames, funcnames, listSizes, lineSelections, algnames, imgfilename,algdir
+		self.filenames, self.funcnames, self.listSizes, self.lineSelections, self.algnames, self.imgfilename, self.algdir =\
+		  filenames, funcnames, listSizes, lineSelections, algnames, imgfilename,algdir
 		self.trac = trace.Trace(count=True)
 		functions = []
 		for i in range(len(filenames)):

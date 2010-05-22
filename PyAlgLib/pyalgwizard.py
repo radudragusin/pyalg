@@ -1,3 +1,10 @@
+#
+# Authors: Radu Dragusin and Paula Petcu
+# Insitute of Computer Science, Copenhagen University, Denmark
+#
+# LICENSED UNDER: GNU General Public License v2
+#
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import QWebView
@@ -7,12 +14,11 @@ import os.path
 import shutil
 import sys
 
-import tracer
-from compareTracer import CompareTracer
-from compareTimer import CompareTimer
-import wiz_pyalg
+from linecountsbenchmarker import LineCountsBenchmarker
+from timebenchmarker import TimeBenchmarker
+import ui_pyalgwiz
 
-class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
+class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 	def __init__(self,parent=None):
 		"""Initializes the wizard and connects its events with its logic part.
 		"""
@@ -314,9 +320,9 @@ class PyAlgWizard(QWizard, wiz_pyalg.Ui_Wizard):
 			filenames.append(filename)
 			funcnames.append(funcname)
 		
-		self.cmpLines = CompareTracer(filenames, funcnames, rangeBoundaries, lines, algnames, self.imgfilename)
+		self.cmpLines = LineCountsBenchmarker(filenames, funcnames, rangeBoundaries, lines, algnames, self.imgfilename)
 		self.lineResults = []
-		self.cmpTimer = CompareTimer(filenames, funcnames, rangeBoundaries, algnames, self.imgfilename2,self.parent.nrBenchExec)
+		self.cmpTimer = TimeBenchmarker(filenames, funcnames, rangeBoundaries, algnames, self.imgfilename2,self.parent.nrBenchExec)
 		self.timeResults = []
 		self.pictureLineLabel.setPixmap(QPixmap())
 		self.pictureTimeLabel.setPixmap(QPixmap())

@@ -1,10 +1,17 @@
+#
+# Authors: Radu Dragusin and Paula Petcu
+# Insitute of Computer Science, Copenhagen University, Denmark
+#
+# LICENSED UNDER: GNU General Public License v2
+#
+
 import sys
 import os
 import trace
 
 import html
 
-def tracer(filename, funcname, arguments, algdir='algorithms', nrselect=False, plottype='line'):
+def tracer(filename, funcname, arguments, algdir='algorithms', plottype='line'):
 	""" Trace the execution of a Python program using the trace library, 
 	and pass the results to the HTML generator.
 	"""
@@ -31,7 +38,7 @@ def tracer(filename, funcname, arguments, algdir='algorithms', nrselect=False, p
 	flowarray = getAlgorithmFlow(filename,'flow.txt')
 
 	ht = html.HtmlReporter()
-	return ht.html_file(os.path.join(algdir,filename),modname,linecounts,flowarray,nrselect,plottype)
+	return ht.html_file(os.path.join(algdir,filename),modname,linecounts,flowarray,plottype)
 
 def getAlgorithmFlow(filename,flow_filename):
 	"""Return an array containing the code trace as line numbers

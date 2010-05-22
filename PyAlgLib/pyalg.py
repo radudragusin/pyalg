@@ -1,3 +1,10 @@
+#
+# Authors: Radu Dragusin and Paula Petcu
+# Insitute of Computer Science, Copenhagen University, Denmark
+#
+# LICENSED UNDER: GNU General Public License v2
+#
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
@@ -9,7 +16,7 @@ import shutil
 
 import tracer
 import ui_pyalg
-from PyAlgWizard import *
+from pyalgwizard import *
 
 __version__ = "0.0.1"
 website = "http://code.google.com/p/pyalg"
@@ -22,12 +29,11 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		super(PyAlgMainWindow,self).__init__(parent)
 		self.setupUi(self)
 		
-		self.confFilePath = 'algorithms/alg.conf'
-		self.visPyDir = 'vispy'
 		self.algDir = 'algorithms'
+		self.confFilePath = os.path.join(self.algDir,'.alg.conf')
+		self.visPyDir = 'vispy'
 		
 		self.setupInitView()
-		#self.setAttribute(Qt.WA_AlwaysShowToolTips)
 		
 		self.connect(self.algTree, SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self.askAlgorithmInput)
 		
@@ -148,6 +154,11 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 					algTypeWidget.addTopLevelItem(QTreeWidgetItem(algTypeItem, QStringList(children)))
 		self.sections = sections
 		
+		self.algOptionsDockWidget.hide()
+		self.renameAction.setEnabled(False)
+		self.deleteAction.setEnabled(False)
+		self.argumentsAction.setEnabled(False)
+		
 	### SHOWING ARGUMENTS INPUT FOR SELECTED ALGORITHM
 	
 	def askAlgorithmInput(self,item,column):
@@ -264,7 +275,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		args = ''.join([arg+',' for arg in arguments])[:-1]
 		# Call the tracer on the arguments:
 		try:
-			html_filename = tracer.tracer(self.filename, self.funcname, args, plottype = self.tracePlotType)
+			html_filename = tracer.tracer(self.filename, self.funcname, args, plottype=self.tracePlotType)
 			self.webView.setUrl(QUrl(html_filename))
 		except StandardError as detail:
 			box = QMessageBox(QMessageBox.Warning, "Warning", 

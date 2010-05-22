@@ -1,9 +1,17 @@
+#
+# Authors: Radu Dragusin and Paula Petcu
+# Insitute of Computer Science, Copenhagen University, Denmark
+#
+# LICENSED UNDER: GNU General Public License v2
+#
+
 import os.path
 from timeit import Timer
 
-class CompareTimer():
+class TimeBenchmarker():
 	def __init__(self,filenames, funcnames, listSizes, algnames, imgfilename, nrexec):
-		self.filenames, self.funcnames, self.listSizes, self.algnames, self.imgfilename, self.nrexec = filenames, funcnames, listSizes, algnames, imgfilename, nrexec
+		self.filenames, self.funcnames, self.listSizes, self.algnames, self.imgfilename, self.nrexec = \
+		  filenames, funcnames, listSizes, algnames, imgfilename, nrexec
 
 	def getTimes(self,arguments):
 		"""For each algorithm and arguments, call getTime

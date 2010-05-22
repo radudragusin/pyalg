@@ -1,14 +1,20 @@
+/*
+ * Authors: Radu Dragusin and Paula Petcu
+ * Insitute of Computer Science, Copenhagen University, Denmark
+ * 
+ * Script for highlighting the flow of the algorithm shown in the html file */
+
 function highlightFlow(btn, strnumber, flowarray) {
 	var intnumber = parseInt(strnumber);
 	
-	//remove current highlightning
+	//remove previous highlighting
 	if(strnumber != '-1'  && intnumber < flowarray.length && intnumber > -1) {
 		$('#t'+flowarray[intnumber].toString()).removeClass('highlight');
 	}
 	$('#nextbt').removeClass(strnumber);
 	$('#prevbt').removeClass(strnumber);
 
-	//add current highlightning
+	//add current highlighting
 	if(btn.toString() == "nextbt") {
 		//verify if in range
 		if(intnumber+1 < flowarray.length) {
@@ -40,14 +46,5 @@ function highlightFlow(btn, strnumber, flowarray) {
 			$('#nextbt').addClass((intnumber-1).toString());
 			$('#prevbt').addClass((intnumber-1).toString());
 		}
-	}
-}
-
-function changeColor(nr) {
-	if($('#'+nr).hasClass('highlightLineNo')){
-		$('#'+nr).removeClass('highlightLineNo');
-	}
-	else {
-		$('#'+nr).addClass('highlightLineNo');
 	}
 }
