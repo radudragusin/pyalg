@@ -27,8 +27,11 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.setupUi(self)
 		self.parent = parent
 		self.justStarted = True
+		self.prevRangeValues = ()
 		self.rangeValuesChanged = True
+		self.rangeValuesChanged2 = True
 		self.rangeElemChanged = True
+		self.rangeElemChanged2 = True
 		
 		self.imgfilename = "htmlfiles/algPerf.svg"
 		self.imgfilename2 = "htmlfiles/algTime.svg"
@@ -37,7 +40,12 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.connect(self, SIGNAL("customButtonClicked(int)"), self.saveWizResults)
 		self.connect(self.rangeFromSpinBox, SIGNAL("valueChanged(int)"), self.setRangeValuesChanged)
 		self.connect(self.rangeToSpinBox, SIGNAL("valueChanged(int)"), self.setRangeValuesChanged)
+		self.connect(self.rangeFromSpinBox2, SIGNAL("valueChanged(int)"), self.setRangeValuesChanged2)
+		self.connect(self.rangeToSpinBox2, SIGNAL("valueChanged(int)"), self.setRangeValuesChanged2)
 		self.connect(self.rangeElemComboBox, SIGNAL("currentIndexChanged(int)"), self.disableRangeElemValueEditing)
+		self.connect(self.addNewRangeButton, SIGNAL("clicked()"), self.addNewRangeInputLine)
+		self.connect(self.removeNewRangeButton, SIGNAL("clicked()"), self.removeNewRangeInputLine)
+		self.connect(self.rangeElemComboBox2, SIGNAL("currentIndexChanged(int)"), self.disableRangeElemValueEditing2)
 		
 	# NAVIGATION THROUGH THE WIZARD'S PAGES	
 	
@@ -69,7 +77,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 			#Page 5 - Step 4 (Final Step)
 			self.setOption(QWizard.HaveCustomButton1)
 			self.setButtonText(QWizard.CustomButton1, "Save All")
-			if self.rangeElemChanged or self.rangeValuesChanged or self.areFixedValuesChanged():
+			if self.rangeElemChanged or self.rangeValuesChanged or self.rangeValuesChanged2 or self.areFixedValuesChanged():
 				self.updateWizPerformance()
 	
 	def validateCurrentPage(self):
@@ -118,6 +126,10 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 			if not self.areAllArgumentValuesGiven():
 				QMessageBox(QMessageBox.Warning, "Warning", 
 				  "All fixed arguments must have an integer value.").exec_()
+				return False
+			elif self.rangeFrame2.isVisible() == True and self.rangeElemComboBox.currentIndex() == self.rangeElemComboBox2.currentIndex():
+				QMessageBox(QMessageBox.Warning, "Warning", 
+				  "In you select two arguments for ranges, those arguments must be different.").exec_()
 				return False
 		elif id == 4:
 			# Final Step: Ask user to save the results, if he did not already do so.
@@ -178,6 +190,15 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		else:
 			self.rangeValuesChanged = False
 			
+	def setRangeValuesChanged2(self):
+		if self.rangeFrame2.isVisible():
+			if self.prevRangeValues2 != (self.rangeFromSpinBox2.value(), self.rangeToSpinBox2.value()):
+				self.rangeValuesChanged2 = True
+			else:
+				self.rangeValuesChanged2 = False
+		else:
+			self.rangeValuesChanged2 = False
+			
 	def areFixedValuesChanged(self):
 		"""Return True/False depending on whether the values from
 		the table are different from the previous values. Called 
@@ -202,6 +223,16 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		if self.rangeElemComboBox.currentIndex() != -1:
 			self.valuesTableWidget.item(self.rangeElemComboBox.currentIndex(),1).setFlags(Qt.ItemIsEnabled)
 		self.prevDisabledTableItemIndex = self.rangeElemComboBox.currentIndex()
+		
+	def disableRangeElemValueEditing2(self):
+		"""Disable editing for the argument selected as the second range for performance analysis.
+		"""
+		self.rangeElemChanged2 = True
+		#if self.prevDisabledTableItemIndex != -1:
+			#self.valuesTableWidget.item(self.prevDisabledTableItemIndex,1).setFlags(Qt.ItemIsEditable|Qt.ItemIsSelectable|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+		#if self.rangeElemComboBox.currentIndex() != -1:
+			#self.valuesTableWidget.item(self.rangeElemComboBox.currentIndex(),1).setFlags(Qt.ItemIsEnabled)
+		#self.prevDisabledTableItemIndex = self.rangeElemComboBox.currentIndex()
 
 	# UPDATE INFORMATION IN THE PAGES
 	
@@ -265,6 +296,10 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		
 		argNames = self.algorithmsArguments
 		possibleRangeElementsStringList = []
+		
+		canGenerateNewRangeInput = False
+		self.rangeFrame2.setVisible(False)
+		
 		for i,argName in enumerate(argNames):
 			if argName != 'Int':
 				genLine = self.parent.availableGeneratorsArguments[self.parent.availableGenerators.index(argName)]
@@ -277,15 +312,41 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 					possibleRangeElementsStringList.append(name)
 					self.addRowWithNameValue(name,elDefaultValue)
 					self.algArgs.append([i,argName,elName])
+				if j > 1:
+					canGenerateNewRangeInput = True
 			else:
 				name = '(Arg '+str(i+1)+': '+argName+') '+'value'
 				possibleRangeElementsStringList.append(name)
 				self.addRowWithNameValue(name,'')
 				self.algArgs.append([i,argName,'value'])
 				
+		if canGenerateNewRangeInput:
+			self.addNewRangeButton.setEnabled(True)
+			self.rangeComboBoxItems = QStringList(possibleRangeElementsStringList)
+		else:
+			self.addNewRangeButton.setEnabled(False)
+				
 		self.rangeElemComboBox.addItems(QStringList(possibleRangeElementsStringList))
 		self.prevLineSelections = self.lineSelections
 		return
+		
+	def addNewRangeInputLine(self):
+		"""Make visible the second input line for selecting the second
+		range for performance analyis. Disable the button for adding
+		another range.
+		"""
+		self.addNewRangeButton.setEnabled(False)
+		self.rangeFrame2.setVisible(True)
+		self.rangeElemComboBox2.clear()
+		self.rangeElemComboBox2.addItems(self.rangeComboBoxItems)
+	
+	def removeNewRangeInputLine(self):
+		"""Make invisible the second input line for selecting the second
+		range for performance analyis. Enable the button of adding another
+		range.
+		"""
+		self.rangeFrame2.setVisible(False)
+		self.addNewRangeButton.setEnabled(True)
 	
 	def addRowWithNameValue(self,name,value):
 		"""Add a row in the valuesTableWidget (containing the fixed values for
@@ -362,6 +423,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 				self.prevRangeValues = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
 				self.rangeValuesChanged = False
 				self.rangeElemChanged = False
+				self.rangeElemChanged2 = False
 			
 			self.progressBar.setVisible(False)
 
@@ -380,7 +442,15 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		if self.rangeArgumentType!='Int':
 			genArguments = [int(self.valuesFromTableWidget[i]) for i,arg in enumerate(self.algArgs) if arg[0] == self.rangeArgumentTypeIndex]
 			genIns = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(self.rangeArgumentType)]()
-			eval('apply(genIns.generateRandom'+self.rangeArgumentType+',genArguments)')
+			try:
+				eval('apply(genIns.generateRandom'+self.rangeArgumentType+',genArguments)')
+			except StandardError as detail:
+				box = QMessageBox(QMessageBox.Warning, "Warning", 
+				  "Could not run code on the given arguments. See <i>Show Details</i> for hints on the problem.")
+				box.setDetailedText(str(detail))
+				box.exec_()
+				self.back()
+				return
 		else:
 			genIns = paramValue
 		

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>478</height>
+    <width>440</width>
+    <height>531</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -221,34 +221,47 @@ To continue, click Next.</string>
       <property name="flat">
        <bool>false</bool>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <widget class="QFrame" name="rangeFrame">
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
            <widget class="QLabel" name="rangeTextLabel">
             <property name="text">
              <string>Range for</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QComboBox" name="rangeElemComboBox"/>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="rangeElemComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
           </item>
-          <item>
+          <item row="0" column="2">
            <widget class="QLabel" name="rangeFromLabel">
             <property name="text">
              <string>from</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="3">
            <widget class="QSpinBox" name="rangeFromSpinBox">
             <property name="minimum">
              <number>2</number>
@@ -261,14 +274,14 @@ To continue, click Next.</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="4">
            <widget class="QLabel" name="rangeToLabel">
             <property name="text">
              <string>to</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="5">
            <widget class="QSpinBox" name="rangeToSpinBox">
             <property name="minimum">
              <number>2</number>
@@ -278,6 +291,107 @@ To continue, click Next.</string>
             </property>
             <property name="value">
              <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6">
+           <widget class="QPushButton" name="addNewRangeButton">
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="rangeFrame2">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="rangeTextLabel2">
+            <property name="text">
+             <string>Range for</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="rangeElemComboBox2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="rangeFromLabel2">
+            <property name="text">
+             <string>from</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="rangeFromSpinBox2">
+            <property name="minimum">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="rangeToLabel2">
+            <property name="text">
+             <string>to</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="rangeToSpinBox2">
+            <property name="minimum">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="removeNewRangeButton">
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
             </property>
            </widget>
           </item>
@@ -302,18 +416,6 @@ To continue, click Next.</string>
           <bool>true</bool>
          </attribute>
          <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="verticalHeaderHighlightSections">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="verticalHeaderVisible">
-          <bool>false</bool>
-         </attribute>
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <attribute name="horizontalHeaderHighlightSections">
           <bool>false</bool>
          </attribute>
          <attribute name="verticalHeaderHighlightSections">
