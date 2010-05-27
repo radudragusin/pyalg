@@ -67,3 +67,33 @@ class LineCountsBenchmarker():
 		ax.set_xlabel('Range')
 		ax.set_ylabel('Line Count')
 		fig.savefig(self.imgfilename)
+		
+	def createHeatmaps(self,perfResults,secondRange):
+		"""Visually represent the results of the getPerf as a plot, and save it as an image
+		"""
+		import matplotlib.pyplot as plt
+		from mpl_toolkits.axes_grid import AxesGrid
+		from numpy import reshape
+		plt.ioff()
+		fig = plt.figure()
+		noOfImgsInGrid = 0
+		for i in range(len(self.algnames)):
+			noOfImgsInGrid += len(self.lineSelections[i])
+		grid = AxesGrid(fig, 111, nrows_ncols = (noOfImgsInGrid,1), axes_pad=0.3, cbar_mode='single')
+		a = range(self.listSizes[0],self.listSizes[1])
+		b = range(secondRange[0],secondRange[1])
+		vmn,vmx = 0,max([perfResults[j][2] for j in range(len(perfResults))])
+		currentGridNumber = 0
+		for i in range(len(self.algnames)):
+			currAlgName = self.algnames[i]
+			for currLineSel in self.lineSelections[i]:
+				values = [perfResults[j][2] for j in range(len(perfResults)) if currAlgName == perfResults[j][0] and currLineSel == perfResults[j][1]]
+				im = grid[currentGridNumber].imshow(reshape(values,(-1,len(b))), vmin=vmn, vmax=vmx, extent=(secondRange[0],secondRange[1],self.listSizes[1],self.listSizes[0]))
+				grid[currentGridNumber].set_ylabel(currAlgName+' - Line '+str(currLineSel)+'\n First Range')
+				grid[currentGridNumber].set_xlabel('Second Range')
+				currentGridNumber += 1
+		plt.colorbar(im,cax=grid.cbar_axes[0])
+		grid.cbar_axes[0].colorbar(im)
+		grid.cbar_axes[0].axis['right'].toggle(ticklabels=True)
+		fig.savefig(self.imgfilename)
+		

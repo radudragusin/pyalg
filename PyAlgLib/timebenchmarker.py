@@ -46,3 +46,27 @@ class TimeBenchmarker():
 		ax.set_xlabel('Range')
 		ax.set_ylabel('Time')
 		fig.savefig(self.imgfilename)
+		
+	def createHeatmaps(self,timeResults,secondRange):
+		"""Visually represent the results of the getTimes as a plot, and save it as an image
+		"""
+		import matplotlib.pyplot as plt
+		from mpl_toolkits.axes_grid import AxesGrid
+		from numpy import reshape
+		plt.ioff()
+		fig = plt.figure()
+		noOfImgsInGrid = len(self.algnames)
+		grid = AxesGrid(fig, 111, nrows_ncols = (noOfImgsInGrid,1), axes_pad=0.3, cbar_mode='single')
+		a = range(self.listSizes[0],self.listSizes[1])
+		b = range(secondRange[0],secondRange[1])
+		vmn,vmx = 0,max([timeResults[j][1] for j in range(len(timeResults))])
+		for i in range(len(self.filenames)):
+			currAlgName = self.algnames[i]
+			values = [timeResults[j][1] for j in range(len(timeResults)) if timeResults[j][0] == currAlgName]
+			im = grid[i].imshow(reshape(values,(-1,len(b))), vmin=vmn, vmax=vmx, extent=(secondRange[0],secondRange[1],self.listSizes[1],self.listSizes[0]))
+			grid[i].set_ylabel(currAlgName+'\n First Range')
+			grid[i].set_xlabel('Second Range')
+		plt.colorbar(im,cax=grid.cbar_axes[0])
+		grid.cbar_axes[0].colorbar(im)
+		grid.cbar_axes[0].axis['right'].toggle(ticklabels=True)
+		fig.savefig(self.imgfilename)

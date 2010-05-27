@@ -28,6 +28,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.parent = parent
 		self.justStarted = True
 		self.prevRangeValues = ()
+		self.prevRangeValues2 = ()
 		self.rangeValuesChanged = True
 		self.rangeValuesChanged2 = True
 		self.rangeElemChanged = True
@@ -77,7 +78,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 			#Page 5 - Step 4 (Final Step)
 			self.setOption(QWizard.HaveCustomButton1)
 			self.setButtonText(QWizard.CustomButton1, "Save All")
-			if self.rangeElemChanged or self.rangeValuesChanged or self.rangeValuesChanged2 or self.areFixedValuesChanged():
+			if self.rangeElemChanged or self.rangeValuesChanged or (self.withTwoRanges and (self.rangeValuesChanged2 or self.rangeElemChanged2)) or self.areFixedValuesChanged():
 				self.updateWizPerformance()
 	
 	def validateCurrentPage(self):
@@ -131,6 +132,10 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 				QMessageBox(QMessageBox.Warning, "Warning", 
 				  "In you select two arguments for ranges, those arguments must be different.").exec_()
 				return False
+			if self.rangeFrame2.isVisible():
+				self.withTwoRanges = True
+			else:
+				self.withTwoRanges = False
 		elif id == 4:
 			# Final Step: Ask user to save the results, if he did not already do so.
 			if self.outputSaved == False:
@@ -360,10 +365,13 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.valuesTableWidget.setItem(rows,1, QTableWidgetItem(QString(value)))
 
 	def updateWizPerformance(self):
-		""" Create/Update the image corresponding to the performance 
+		""" Create/Update the images corresponding to the performance 
 		analysis of the selected algorithms, on their corresponding
 		parameters (line selections, size ranges)
 		"""
+		if self.withTwoRanges:
+			self.updateWizPerformanceWithTwoRanges()
+			return
 		rangeBoundaries = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
 		algnames = [linesel[0] for linesel in self.lineSelections]
 		lines = [[int(sel) for sel in linesel[1]] for linesel in self.lineSelections]
@@ -373,7 +381,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.rangeArgumentTypeIndex = self.algArgs[rangeArgumentIndex][0]
 		self.valuesFromTableWidget = [str(self.valuesTableWidget.item(row,1).text()) for row in range(self.valuesTableWidget.rowCount())]
 		self.generateNonRangeArguments()
-		
+			
 		filenames, funcnames = [], []
 		for algName in algnames:
 			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
@@ -423,7 +431,6 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 				self.prevRangeValues = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
 				self.rangeValuesChanged = False
 				self.rangeElemChanged = False
-				self.rangeElemChanged2 = False
 			
 			self.progressBar.setVisible(False)
 
@@ -440,7 +447,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		Used by updateWizPerformance.
 		"""
 		if self.rangeArgumentType!='Int':
-			genArguments = [int(self.valuesFromTableWidget[i]) for i,arg in enumerate(self.algArgs) if arg[0] == self.rangeArgumentTypeIndex]
+			genArguments = [int(self.valuesFromTableWidget[j]) for j,arg in enumerate(self.algArgs) if arg[0] == self.rangeArgumentTypeIndex]
 			genIns = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(self.rangeArgumentType)]()
 			try:
 				eval('apply(genIns.generateRandom'+self.rangeArgumentType+',genArguments)')
@@ -479,6 +486,136 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 				elif arg[1] == 'Int':
 					self.nonRangeArgs.append(str(int(self.valuesFromTableWidget[i])))
 				prevarg = arg[0]
+
+	def updateWizPerformanceWithTwoRanges(self):
+		""" Create/Update the images corresponding to the performance 
+		analysis of the selected algorithms, on their corresponding
+		parameters (line selections and TWO ranges). Similar to the
+		updateWizPerformance method, only that this one performs on two
+		types of ranges, producing 3D images instead of 2D.
+		"""
+		rangeBoundaries = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
+		rangeBoundaries2 = (self.rangeFromSpinBox2.value(), self.rangeToSpinBox2.value())
+		algnames = [linesel[0] for linesel in self.lineSelections]
+		lines = [[int(sel) for sel in linesel[1]] for linesel in self.lineSelections]
+		
+		rangeArgumentIndex = self.rangeElemComboBox.currentIndex()
+		self.rangeArgumentType = self.algArgs[rangeArgumentIndex][1]
+		self.rangeArgumentTypeIndex = self.algArgs[rangeArgumentIndex][0]
+		rangeArgumentIndex2 = self.rangeElemComboBox2.currentIndex()
+		self.rangeArgumentType2 = self.algArgs[rangeArgumentIndex2][1]
+		self.rangeArgumentTypeIndex2 = self.algArgs[rangeArgumentIndex2][0]
+		self.valuesFromTableWidget = [str(self.valuesTableWidget.item(row,1).text()) for row in range(self.valuesTableWidget.rowCount())]
+		self.generateNonRangeArgumentsWithTwoRanges()
+			
+		filenames, funcnames = [], []
+		for algName in algnames:
+			el = [i for i in range(len(self.algConf)) if algName in [self.algConf[i][1]]][0]
+			filename, funcname = self.algConf[el][2], self.algConf[el][3]
+			filenames.append(filename)
+			funcnames.append(funcname)
+		
+		self.cmpLines = LineCountsBenchmarker(filenames, funcnames, rangeBoundaries, lines, algnames, self.imgfilename)
+		self.lineResults = []
+		self.cmpTimer = TimeBenchmarker(filenames, funcnames, rangeBoundaries, algnames, self.imgfilename2,self.parent.nrBenchExec)
+		self.timeResults = []
+		self.pictureLineLabel.setPixmap(QPixmap())
+		self.pictureTimeLabel.setPixmap(QPixmap())
+		self.progressBar.setVisible(True)
+		self.progressBar.setRange(0,(rangeBoundaries[1]-rangeBoundaries[0])*(rangeBoundaries2[1]-rangeBoundaries2[0]))
+		self.progressBar.setFormat('%v out of %m done')
+		for i,currentValue1 in enumerate(range(rangeBoundaries[0],rangeBoundaries[1])):
+			for j,currentValue2 in enumerate(range(rangeBoundaries2[0],rangeBoundaries2[1])):
+				if self.isHidden() == False and self.currentId() == 4:
+					self.valuesFromTableWidget[rangeArgumentIndex] = currentValue1
+					self.valuesFromTableWidget[rangeArgumentIndex2] = currentValue2
+					self.cmpLinesAndTimeWithTwoRanges(currentValue1,currentValue2)
+					self.progressBar.setValue(rangeBoundaries2[1]*i+j)
+					QApplication.processEvents()
+				else:
+					break
+		try:
+			self.progressBar.setRange(0,2)
+			self.progressBar.setFormat('Generating benchmark suite')
+			self.progressBar.setValue(0)
+			QApplication.processEvents()
+			if self.isHidden() == False and self.currentId() == 4:
+				self.cmpLines.createHeatmaps(self.lineResults,rangeBoundaries2)
+				pic = QPixmap(self.imgfilename)
+				self.pictureLineLabel.setPixmap(pic)
+				
+				self.progressBar.setValue(1)
+				QApplication.processEvents()
+
+			if self.isHidden() == False and self.currentId() == 4:
+				self.cmpTimer.createHeatmaps(self.timeResults,rangeBoundaries2)
+				pic = QPixmap(self.imgfilename2)
+				self.pictureTimeLabel.setPixmap(pic)
+				
+				self.progressBar.setValue(2)
+				QApplication.processEvents()
+				
+				self.prevRangeValues = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
+				self.prevRangeValues2 = (self.rangeFromSpinBox2.value(), self.rangeToSpinBox2.value())
+				self.rangeValuesChanged = False
+				self.rangeValuesChanged2 = False
+				self.rangeElemChanged = False
+				self.rangeElemChanged2 = False
+			
+			self.progressBar.setVisible(False)
+
+		except StandardError as detail:
+			box = QMessageBox(QMessageBox.Warning, "Warning", "Could not draw performance graph.")
+			box.setDetailedText(str(detail))
+			box.exec_()
+			self.back()
+
+	def generateNonRangeArgumentsWithTwoRanges(self):
+		"""Generate the 'fixed' data to be used in all traces of the algorithm
+		on the ranged arguments. This is done only once in benchmarking: before
+		tracing. Similar with the generateNonRangeArguments method, only that 
+		this method works on two ranges.
+		"""
+		self.nonRangeArgs = []
+		prevarg = -1
+		for i,arg in enumerate(self.algArgs):
+			if arg[0] != prevarg and arg[0] != self.rangeArgumentTypeIndex and arg[0] != self.rangeArgumentTypeIndex2:
+				if arg[1] != 'Int':
+					genArguments = [int(self.valuesFromTableWidget[j]) for j,a in enumerate(self.algArgs) if a[0] == arg[0]]
+					argumentType = arg[1]
+					genIns = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(argumentType)]()
+					eval('apply(genIns.generateRandom'+argumentType+',genArguments)')
+					self.nonRangeArgs.append(str(genIns))
+				elif arg[1] == 'Int':
+					self.nonRangeArgs.append(str(int(self.valuesFromTableWidget[i])))
+				prevarg = arg[0]
+				
+	def cmpLinesAndTimeWithTwoRanges(self,currentValue1,currentValue2):
+		"""Generate data for the current values of the changing parameters, 
+		and call the modules for performance analysis for that data. Save 
+		the results.
+		Used by updateWizPerformanceWithTwoRanges
+		"""
+		if self.rangeArgumentType != 'Int':
+			genArguments = [int(self.valuesFromTableWidget[j]) for j,arg in enumerate(self.algArgs) if arg[0] == self.rangeArgumentTypeIndex]
+			genIns = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(self.rangeArgumentType)]()
+			try:
+				eval('apply(genIns.generateRandom'+self.rangeArgumentType+',genArguments)')
+			except StandardError as detail:
+				box = QMessageBox(QMessageBox.Warning, "Warning", 
+				  "Could not run code on the given arguments. See <i>Show Details</i> for hints on the problem.")
+				box.setDetailedText(str(detail))
+				box.exec_()
+				self.back()
+				return
+		else:
+			genIns = currentValue1
+		self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
+		args = ''.join([arg+',' for arg in self.nonRangeArgs])[:-1]
+		self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
+		#print args
+		self.timeResults = self.timeResults + self.cmpTimer.getTimes(args)
+		self.lineResults = self.lineResults + self.cmpLines.getPerf(args)
 
 	# SAVE THE RESULTS OBTAINED THROUGH THE WIZARD
 	
