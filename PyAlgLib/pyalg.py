@@ -7,6 +7,7 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQt4.QtWebKit import QWebView
 
 import os
 import os.path
@@ -70,6 +71,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.connect(self.autoArgsAction, SIGNAL("triggered()"), self.setAutoInputType)
 		self.connect(self.nrBenchExecAction, SIGNAL("triggered()"), self.setNrBenchmarkExecutions)
 		self.connect(self.saveAction, SIGNAL("triggered()"), self.saveHtml)
+		self.connect(self.helpAction, SIGNAL("triggered()"), self.showHelpDialog)
 	
 	### INITIAL SETUP
 		
@@ -460,6 +462,15 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GNU General Public License v2</a>
 			<p>Python %s -Qt %s -PyQt %s on %s"""
 			% (__version__,website,python_version(),QT_VERSION_STR,PYQT_VERSION_STR,system()))
+	
+	def showHelpDialog(self):
+		helpDialog = QDialog(self)
+		verticalLayout = QVBoxLayout(helpDialog)
+		helpWebView = QWebView(helpDialog)
+		helpWebView.setUrl(QUrl('about:blank'))
+		verticalLayout.addWidget(helpWebView)
+		helpDialog.exec_()
+		pass
 	
 	def showNewAlgWindow(self):
 		"""Open a pop-up window for adding a new algorithm to the existing library.

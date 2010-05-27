@@ -10,8 +10,8 @@
 ##
 
 import random as r
-import matplotlib.pyplot as plt
-import networkx as nx
+#import matplotlib.pyplot as plt
+#import networkx as nx
 import datastructure as abstract
 
 class Graph(abstract.GraphDatastructure, object):
@@ -104,74 +104,6 @@ class Graph(abstract.GraphDatastructure, object):
         self.vertices = {}
         self.edges = {}
         self._edgeidcount = 0
-        self.__subconstruct__(False)
-
-
-## all visualisation initialisations and methods:
-
-    def __subconstruct__(self, visual):
-        """ Contains all initialisations needed for the visualiser, this method
-        is invoked implicitly."""
-        self._visualisation = visual
-        plt.ion()
-        self._g = nx.Graph()
-        self._oldgvertices = []
-        self._oldgedges = []
-        self._pos = {}
-    
-    def visualise(self, figNum=1, markEdges=[], markVertices=[],
-    savefig=None, savefig_format='png', vertexLabels=None):
-        """ Method to invoke the visualisation of the content of the
-        structure."""
-        try:
-            if self._g:
-                pass
-        except AttributeError:
-            self.__subconstruct__(False)
-            
-        plt.figure(figNum, facecolor='white')
-        plt.clf()
-        plt.axis('off')
-        self._g.clear()
-        for vertex in self.getVertices():
-            self._g.add_node(vertex.getId())
-
-        for edge in self.getEdges():
-            self._g.add_edge(edge.start_vertex,edge.end_vertex)
-            
-        if (not self._oldgvertices and not self._oldgedges) or \
-            (not self._oldgvertices == self._g.nodes() or \
-             not self._oldgedges == self._g.edges()):
-            self._pos = nx.spring_layout(self._g)
-
-        self._oldgvertices = self._g.nodes()
-        self._oldgedges = self._g.edges()
-
-        if not markVertices and not markEdges:
-            nx.draw_networkx_nodes(self._g, self._pos, node_color='#557A66')#, edge_color='#272E2E')
-            nx.draw_networkx_edges(self._g, self._pos)#, edge_color='#272E2E')
-            nx.draw_networkx_labels(self._g, self._pos, labels=vertexLabels)
-#            nx.draw_networkx_edge_labels(self.G, self._pos, edge_labels=vertexLabels)
-# drawing edge labels are only available from networkX 1.1 and beyond
-        else:
-            unmarkedVertices = list(set(self._g.nodes()).difference(markVertices))
-            unmarkedEdges = list(set(self._g.edges()).difference(markEdges))
-
-            nx.draw_networkx_nodes(self._g, self._pos, nodelist=unmarkedVertices, node_color='#557A66')#, vertex_size=700)
-            nx.draw_networkx_nodes(self._g, self._pos, nodelist=markVertices, node_size=700, node_color='#9ed95e')
-            # E82B1E <- roed sort trae
-            nx.draw_networkx_edges(self._g, self._pos, edgelist=unmarkedEdges)#, edge_color='#272E2E')#, width=6)
-            nx.draw_networkx_edges(self._g, self._pos, edgelist=markEdges,width=6)#, edge_color='#272E2E')
-
-            nx.draw_networkx_labels(self._g, self._pos, labels=vertexLabels)
-
-        if savefig:
-            plt.savefig(savefig, format=savefig_format)
-
-    def clearVisualisation(self):
-        """ Clears and closes the active visualisations"""
-        self._pos = {}
-        plt.close()
         
     def generateRandomGraph(self, numberofvertices=0, numberofedges=0):
         """ Generates and occupies the structure with random number of vertices
