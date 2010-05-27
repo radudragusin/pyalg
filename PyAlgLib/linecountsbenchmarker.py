@@ -69,7 +69,7 @@ class LineCountsBenchmarker():
 		fig.savefig(self.imgfilename)
 		
 	def createHeatmaps(self,perfResults,secondRange):
-		"""Visually represent the results of the getPerf as a plot, and save it as an image
+		"""Visually represent the results of the getPerf as heatmaps, and save it as an image
 		"""
 		import matplotlib.pyplot as plt
 		from mpl_toolkits.axes_grid import AxesGrid

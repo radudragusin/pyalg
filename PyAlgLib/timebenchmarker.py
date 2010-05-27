@@ -48,7 +48,7 @@ class TimeBenchmarker():
 		fig.savefig(self.imgfilename)
 		
 	def createHeatmaps(self,timeResults,secondRange):
-		"""Visually represent the results of the getTimes as a plot, and save it as an image
+		"""Visually represent the results of the getTimes as heatmaps, and save it as an image
 		"""
 		import matplotlib.pyplot as plt
 		from mpl_toolkits.axes_grid import AxesGrid

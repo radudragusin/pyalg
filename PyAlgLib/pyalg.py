@@ -245,7 +245,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		Get input (manual or automaticaly generated) from each tab,
 		verrify its correctness, send the arguments to the tracer,
 		and show the generated html.
-		TO-DO: evaluate the corectness of the arguments before/instead of 
+		Future TO-DO: evaluate the corectness of the arguments before/instead of 
 		calling the tracer and catching errors.
 		"""
 		#
@@ -261,13 +261,11 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			elif tab.findChild(QRadioButton, "autoInputRadioButton"+str(i)).isChecked():
 				genArguments = [tab.findChild(QSpinBox, arg).value() for arg in self.argsDict[i]]
 				arg = self.argsType[i]
-				print genArguments
 				genIns = self.availableGeneratorsModules[self.availableGenerators.index(arg)]()
 				eval('apply(genIns.generateRandom'+arg+',genArguments)')
 				arguments.append(str(genIns))
 			else:
 				return
-			print arguments
 		if len(arguments) != nrOfArgTabs:
 			QMessageBox(QMessageBox.Warning, "Warning", "Not enough arguments").exec_()
 			return
@@ -330,7 +328,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		"""Return the list of available function arguments types (and thus generators)
 		- needed for populating the list view of the new algorithm functionality
 		- needed for generating random data
-		TO-DO: verify if only one class
+		Future TO-DO: verify if only one class
 		"""
 		availableGenerators = ['Int']
 		availableGeneratorsArguments = ['']
@@ -366,7 +364,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 	def addNewAlgArgument(self):
 		"""Add the currently selected argument type to the list of
 		arguments for the new algorithm.
-		TO-DO: after adding, the selection is set to the new arg type
+		Future TO-DO: after adding, the selection should be set to the new arg type
 		"""
 		currList = self.newAlgArgsModel.stringList()
 		currList.append(self.selectedArg)
@@ -383,7 +381,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		
 	def moveUpNewAlgArgument(self):
 		"""Move one position up the selected argument type.
-		TO-DO: after moving, the selection remains on the moved arg type
+		Future TO-DO: after moving, the selection should remain on the moved arg type
 		"""
 		currList = self.newAlgArgsModel.stringList()
 		if self.selectedModifArgIndex > 0:
@@ -394,7 +392,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 	
 	def moveDownNewAlgArgument(self):
 		"""Move one position down the selected argument type.
-		TO-DO: after moving, the selection remains on the moved arg type
+		Future TO-DO: after moving, the selection should remain on the moved arg type
 		"""
 		currList = self.newAlgArgsModel.stringList()
 		if -1 < self.selectedModifArgIndex < len(currList)-1:
@@ -416,7 +414,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 	def addNewAlg(self):
 		"""Add the new algorithm to the library of available algorithms 
 		(if all required input is correct).
-		TO-DO: If a filename already exists, append a counter at the end
+		Future TO-DO: If a filename already exists, append a counter at the end
 		of the file instead of appending zeros.
 		"""
 		fileName = str(self.pathLineEdit.text())
@@ -493,7 +491,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 				" (including the corresponding Python file) from the library?",
 				QMessageBox.Yes|QMessageBox.Default, QMessageBox.No|QMessageBox.Escape)
 				if reply == QMessageBox.Yes:
-					el = [i for i in range(len(self.algConf)) if currAlgName in self.algConf[i][1]][0]
+					el = [i for i in range(len(self.algConf)) if currAlgName in [self.algConf[i][1]]][0]
 					try:
 						os.remove(os.path.join(os.path.join(os.getcwd(),self.algDir),self.algConf[el][2]))
 						self.algConf.pop(el)

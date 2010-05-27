@@ -196,6 +196,10 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 			self.rangeValuesChanged = False
 			
 	def setRangeValuesChanged2(self):
+		"""Set on True the value of rangeValuesChanged2 if the values from
+		the spin boxes are different from the previous values. Called 
+		when a change was made in one of the second range spinboxes.
+		"""
 		if self.rangeFrame2.isVisible():
 			if self.prevRangeValues2 != (self.rangeFromSpinBox2.value(), self.rangeToSpinBox2.value()):
 				self.rangeValuesChanged2 = True
@@ -231,13 +235,9 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		
 	def disableRangeElemValueEditing2(self):
 		"""Disable editing for the argument selected as the second range for performance analysis.
+		Future TO-DO: implement this functionality
 		"""
 		self.rangeElemChanged2 = True
-		#if self.prevDisabledTableItemIndex != -1:
-			#self.valuesTableWidget.item(self.prevDisabledTableItemIndex,1).setFlags(Qt.ItemIsEditable|Qt.ItemIsSelectable|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
-		#if self.rangeElemComboBox.currentIndex() != -1:
-			#self.valuesTableWidget.item(self.rangeElemComboBox.currentIndex(),1).setFlags(Qt.ItemIsEnabled)
-		#self.prevDisabledTableItemIndex = self.rangeElemComboBox.currentIndex()
 
 	# UPDATE INFORMATION IN THE PAGES
 	
@@ -613,7 +613,6 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
 		args = ''.join([arg+',' for arg in self.nonRangeArgs])[:-1]
 		self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
-		#print args
 		self.timeResults = self.timeResults + self.cmpTimer.getTimes(args)
 		self.lineResults = self.lineResults + self.cmpLines.getPerf(args)
 
