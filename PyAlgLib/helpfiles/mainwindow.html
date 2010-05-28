@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>mainwindow</title></head><body><big><span style="font-weight: bold;"></span></big><big style="font-weight: bold;">Section 2. Main Window</big><br>
+<br>
+<span style="font-weight: bold;"><a name="2.1">2.1. Overview</a></span><br>
+<br>
+When running the application, the first thing you will see will be the
+Main Window. This looks like the window in fig. 1, although the
+appearance may suffer minor changes depending on the operating system
+you are running the application on.<br>
+<img style="width: 569px; height: 481px;" alt="fig1" src="fig1.png"><br>
+Fig.1. Main Window on Ubuntu 9.10 (Karmic Koala), with its three main
+sections highlighted: (1) the menu bar (2) the algorithm library frame
+(3) the web view frame.<br>
+<br>
+<span style="font-weight: bold;">The Menu Bar</span><br style="font-weight: bold;">
+<br>
+The Menu Bar from the top of the Main Window gives you access to
+important features available in the application. These features are
+explained in Table 1.<br>
+Some of the menu items have assigned keyboard shortcuts which are displayed next to the item's name, as illustrated in fig. 2. <br style="font-weight: bold;">
+<img style="width: 212px; height: 132px;" alt="fig2" src="fig2.png"> <img style="width: 214px; height: 132px;" alt="fig3" src="fig3.png"> <br>
+Fig.2. Illustrations of some of the menu items.<br>
+<br>
+<span style="font-weight: bold;">Functionalities of the menu items</span> <span style="font-weight: bold;">from the Menu Bar</span><br>
+<br>
+<table style="text-align: left; width: 649px; height: 825px;" border="1" cellpadding="2" cellspacing="2">
+  <caption style="caption-side: bottom;">Table 1. Description of menu items functionalities<br>
+  </caption><tbody>
+    <tr>
+      <td style="vertical-align: top; width: 190px;">Options -&gt; New...</td>
+      <td style="vertical-align: top; width: 392px;">Add
+a new algorithm to the Algorithm Library. You will have to provide your
+own Python source code. See also section 'Adding a new algorithm'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; width: 190px;">Options -&gt; Save<br>
+      </td>
+      <td style="vertical-align: top; width: 392px;">Save the output
+produced by running an algorithm from the library through this
+interface. Feature is enabled only when an output is available. See
+also section 'Running an algorithm'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; width: 190px;">Options -&gt; Preferences</td>
+      <td style="vertical-align: top; width: 392px;">Set preferences
+for the current session. The settings are not saved for future work
+sessions (i.e. these preferences are lost when you close the
+application).<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Options -&gt; Preferences -&gt; Arguments Input<img style="width: 275px; height: 93px;" alt="fig4" src="fig4.png"></td>
+      <td style="vertical-align: top;">Set the preference for providing input for the algorithms. Possible choices: <span style="font-style: italic;">Manual</span> or <span style="font-style: italic;">Automatic.</span> Default: <span style="font-style: italic;">Automatic</span>. <span style="font-style: italic;">Manual</span> means that you prefer to edit yourself the arguments for each algorithm before running it. <span style="font-style: italic;">Automatic</span> means that you prefer the data generators to take care of the input. See also section 'Running an algorithm'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Options -&gt; Preferences -&gt; Trace Plot Type<br>
+      </td>
+      <td style="vertical-align: top;">Set the preference for the type of plot to be made when running the algorithms. Possible choices: <span style="font-style: italic;">Line Plot</span>, <span style="font-style: italic;">Bar</span>, and <span style="font-style: italic;">Bar (filled)</span>. Default: <span style="font-style: italic;">Bar (filled)</span>.  See also section 'Running an algorithm'</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Options -&gt; Preferences -&gt; Benchmark Wizard -&gt; Number executions<br>
+      </td>
+      <td style="vertical-align: top;">Set the preference for the
+number of executions of an algorithm when run with the Benchmarking
+Tool. Default: value 1. See also section 'Benchmarking Tool'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; width: 190px;">Options -&gt; Quit<br>
+      </td>
+      <td style="vertical-align: top; width: 392px;">Close the application<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; width: 190px;">Edit<br>
+      </td>
+      <td style="vertical-align: top; width: 392px;">The
+menu items under 'Edit' are enabled only when an algorithm from the
+Algorithm Library is selected. See also section 'Editing algorithm
+information'</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; width: 190px;">Edit -&gt; Rename<br>
+      </td>
+      <td style="vertical-align: top; width: 392px;">Rename
+a selected algorithm from the Algorithm Library. These names must be
+unique. See also section 'Editing algorithm information'</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Edit -&gt; Arguments<br>
+      </td>
+      <td style="vertical-align: top;">Edit the arguments list for a selected algorithm from the Algorithm Library. See also section 'Editing algorithm information'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Edit -&gt; Delete<br>
+      </td>
+      <td style="vertical-align: top;">Delete a selected algorithm from the Algorithm Library.  See also section 'Editing algorithm information'</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Tools -&gt; Benchmarking<br>
+      </td>
+      <td style="vertical-align: top;">Open the Benchmarking Tool. See also section 'Benchmarking Tool'<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Help -&gt; Help<br>
+      </td>
+      <td style="vertical-align: top;">Open the hypertext-based help system.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Help -&gt; Webiste<br>
+      </td>
+      <td style="vertical-align: top;">Open the product's website in a new tab in the default browser.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Help -&gt; About<br>
+      </td>
+      <td style="vertical-align: top;">Show application information.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<span style="font-weight: bold;">The Algorithm Library</span><br>
+<br>
+The frame containing the collection of algorithm names available
+through this interface is called the Algorithm Library. The items (i.e.
+algorithms) in this library can be selected and edited, and more items
+can be added. <br>
+<br>
+The names shown in the interface are aliases for corresponding Python
+scripts. When the application starts, a configuration file containing
+the library's information is read. This file stores for each item in
+the library, the name of the Python source file, the name of the
+algorithm as shown in the interface, the name of the function to be
+called from that script, the type(s) of the argument(s) the selected
+function must take, and the name of the parent algorithm section (like
+the name 'Sorting Algorithms' for the algorithm named 'Insertion Sort',
+as in fig.5). <br>
+<br>
+See also sections 'Adding a new algorithm' and 'Editing algorithm information'.<br>
+<br>
+When you select an algorithm, the docking widget containing its
+corresponding arguments will show up (as you can see in the figure
+below). You can read more about this Arguments docking widget in
+section 'Running an algorithm'. <br>
+<br style="font-weight: bold;">
+<img style="width: 213px; height: 472px;" alt="fig5" src="fig5.png"><br>
+Fig.4. The docking widget containing the library of algorithms (top)
+and the docking widget containing argument input for selected algorithm
+from the library (bottom). <br>
+<br>
+<span style="font-weight: bold;">The Web View</span><br>
+<br>
+<img style="width: 510px; height: 419px;" alt="fig6" src="fig6.png"><br>
+Fig.5. View of the Main Window, with the Web View containing the output
+generated by running Insertion Sort on a randomly generated list of
+length 20.<br>
+<br>
+The Web View is actually a browser that shows a single HTML file: the
+file produced as a result of running an algorithm on some arguments
+through this application.<br>
+<br>
+<img style="width: 510px; height: 331px;" alt="fig7" src="fig7.png"><br>
+Fig.6. Close-up of the HTML file shown in the Web View. Sections: (1)
+the Python source code that was executed, corresponding to the selected
+algorithm from the Algorithm Library; (2) annotated line numbers
+corresponding to the code; (3) line counts as a result of running the
+algorithm on the argument(s) given through the Arguments frame (The
+line counts were obtained by performing a process called algorithm
+tracing); (4) the bar plot on the values in (3); (5) buttons for moving
+the yellow highlightner illustrating the flow of the algorithm.<br>
+<br>
+<span style="font-weight: bold;">Saving the HTML file</span><br>
+<br>
+As the analysis results obtained on the algorithms from the Algorithm
+Library are simple HTML files (with some JavaScript for highlighting),
+these can be saved and further used out of the scope of the
+application. <br>
+<br>
+To save the analysis output (i.e. the produced HTML file), you can use the <span style="font-style: italic;">Options -&gt;&nbsp; Save</span> menu item (as it can be seen in fig.5.) or keyboard shortcut <span style="font-style: italic;">Ctrl-S</span>
+and provide the folder in which you would like to save it. Some extra
+files will be saved along with the actual HTML file: two JavaScript
+files for highlighting the flow of the algorithm, the image containing
+the plot, and a CSS file for style.<br>
+<br>
+<span style="font-weight: bold;"><a name="2.2">2.2. Adding a new algorithm</a></span><br>
+<br>
+You can add your own algorithm to the Algorithm Library and use the
+application for tracing and benchmarking. To add a new algorithm,
+select the <span style="font-style: italic;">Options -&gt; New...</span> menu item or use the keyboard shortcut <span style="font-style: italic;">Ctrl-N</span>. Next, you will see a docking widget like the one in fig.7.<br>
+<br>
+<img style="width: 507px; height: 418px;" alt="fig8" src="fig8.png"><br>
+Fig.7. View of the Main Window with the New Algorithm docking widget visible.<br>
+<br>
+<span style="font-style: italic; font-weight: bold;">Step 1: Selecting the path of the algorithm</span><br>
+<br>
+Click on the button next to the first input field, and browse for your
+source code path. You can also edit the input field an write the path
+by hand, but it is usually easier to browse for files.<br>
+<img style="width: 178px; height: 121px;" alt="fig9" src="fig9.png"><br>
+Assuming that you provided a well-formed path to a Python script, the
+input fields that are initially disabled will be enabled and you will
+be able to edit them (as explained in the following steps).<br>
+<br>
+<span style="font-style: italic; font-weight: bold;">Step 2: Selecting the function</span><br>
+<br>
+A list of functions that were identified in the provided source code
+will be shown in the box below the file path you have given.<br>
+<img style="width: 181px; height: 106px;" alt="fig10" src="fig10.png"><br>
+You should select the function/method you want to be called when running the algorithm. <br>
+For example, let us take the illustration above. The function that
+should be called when running Quick Sort on a list should be QuickSort,
+and not Partition (which is called inside the QuickSort function). The
+quick sort algorithm can be found in the Algorithm Library, as the
+application comes with two algorithms in the library: Insertion Sort
+and Quick Sort.<br>
+<br>
+<span style="font-style: italic; font-weight: bold;">Step 3: Giving the algorithm a name</span><br>
+<br>
+This name will be the alias for the algorithm and the name shown in the
+Algorithm Library. Name must be unique and should be meaningful (i.e.
+illustrating what the algorithm does).<br>
+<img style="width: 184px; height: 214px;" alt="fig11" src="fig11.png"><br>
+<br>
+<span style="font-style: italic; font-weight: bold;">Step 3: Selecting the algorithm's type</span><br style="font-style: italic;">
+<br>
+When your library will increase in size, you will probably want to have
+your algorithms organized. For this purpose, you are required to select
+a so-called type when you add a new algorithm. This can be something
+like 'Sorting Algorithms' or 'Graph Algorithms' or whatever criteria
+you have in mind for organizing your algorithms. <br>
+<br>
+When you add a new algorithm, you can select between an existing type
+of algorithm or you can select the blank item. This selection will
+determine the structure of the tree-like view of the Algorithm Library.<br>
+<br>
+<span style="font-style: italic; font-weight: bold;">Step 4: Selecting the arguments for the chosen function </span><br>
+<br>
+<img style="width: 191px; height: 199px;" alt="fig12" src="fig12.png"><br>
+In Step 2, you selected a function that should be called by this
+application when performing analysis and benchmarking on the algorithm.
+Along with this function, you are required to select the type of
+arguments that function takes. The order of the arguments matters. You
+can drag the argument types from the left list (the list of available
+algorithms) to the right list (the list of arguments you select for the
+function). You can use the <span style="font-style: italic;">&gt;</span> button to obtain the same behavior. <br>
+<br>
+If you want to modify the arguments from the right-most list, you can
+do so by using the buttons right below the list. ^ moves one position
+up the selected argument; v does the opposite, by moving the selected
+argument one position down; and the last button (-) deletes the
+selected argument. <br>
+<br>
+The collection of types of arguments available in the application is
+based on the data structures made available. The application comes with
+three data structures: List, Tree and Graph. These three are the data
+structures provided by VisPy (http://code.google.com/p/vispy). <br>
+<br style="font-weight: bold;">
+<span style="font-weight: bold;">Adding a new data structure</span><br>
+<br>
+To add a custom data structure, you will have to copy the Python source
+file (containing the data structure) to the directory called 'vispy' in
+the application's folder, and make sure that you respect to the
+following guide-lines: <br>
+(1) name your file &lt;<span style="font-style: italic;">datastructurename</span>&gt;<br>
+(2) name your class &lt;<span style="font-style: italic;">Datastructurename</span>&gt;<br>
+(3) include a method called generateRandom&lt;<span style="font-style: italic;">Datastructurename</span>&gt;<br>
+where <span style="font-style: italic;">datastructurename</span> is the name of your custom data structure.<br>
+Example: a file named 'list.py' containing a class named 'List' and a
+method of that class named generateRandomList with some arguments. <br>
+When you re-open the application, this data structure will be now available when adding a new algorithm.<br>
+<br>
+<span style="font-weight: bold;">Step 5: Adding the algorithm to the Algorithm Library</span><br>
+<br>
+As soon as you click on the Add button from the New Algorithm docking
+widget, the algorithm will appear in the Algorithm Library. The file
+you provided the path to will be copied in the application's folder
+(named 'algorithms') containing all the algorithms referenced in the
+library.<br>
+<br>
+<span style="font-weight: bold;"><a name="2.3">2.3. Editing algorithm information</a></span><span style="font-weight: bold;"><br>
+</span><br>
+You can edit an algorithm's name and list of arguments and you can
+remove it from the Algorithm Library. All these operations can be done
+by selecting the <span style="font-style: italic;">Edit</span> menu
+item from the Menu Bar and then the operation you want to perform. When
+no algorithm is selected in the library, the operations will not be
+enabled.<br>
+<span style="font-weight: bold;"><br>
+Renaming an algorithm<br>
+</span><br>
+Select the<span style="font-style: italic;"> Edit -&gt; Rename</span> menu item or use the keyboard shortcut <span style="font-style: italic;">F2</span>
+to rename the selected algorithm from the Algorithm Library. Edit the
+input field from the dialog with the new name and confirm by
+pressing the <span style="font-style: italic;">OK</span> button. The names should be unique and meaningful.<br>
+<br>
+<span style="font-weight: bold;"><img style="width: 318px; height: 251px;" alt="fig13" src="fig13.png"><br>
+<br>
+Editing the algorithm's function arguments<br>
+<br>
+</span>Select the<span style="font-style: italic;"> Edit -&gt; Arguments</span> menu item
+to edit the list of arguments corresponding to the selected algorithm from the Algorithm Library. Edit the
+input field from the pop-uped dialog with the updated list of arguments and confirm by
+pressing the <span style="font-style: italic;">OK</span> button. <br>
+<br>
+<img style="width: 319px; height: 270px;" alt="fig14" src="fig14.png"><br>
+<br>
+The list should preserve its format (i.e. the text you input should
+comply to the following structure:
+['&lt;datastructure1&gt;','&lt;datastructure2&gt;',...,'&lt;datastructuren&gt;']
+where &lt;datastructure_&gt; is the type of data structure you use as
+argument, and if there is more than one argument, the types do not
+necessarily need to be different)<br>
+<br>
+<span style="font-weight: bold;">Deleting an algorithm</span><br style="font-weight: bold;">
+<br>
+In this context, deleting an algorithm has the same meaning with
+removing it from the Algorithm Library, and the actual result of this
+action is removing its reference from the Algorithm Library and
+deleting the corresponding source code.<br>
+<br>
+<span style="font-weight: bold;"><a name="2.4">2.4. Running an algorithm</a></span><br>
+<br>
+Running an algorithm for analysis (tracing and flow) is easy and only three steps need to be followed:<br>
+(1) Select an algorithm from the Algorithm Library.<br>
+(2) Provide some values for the required arguments.<br>
+(3) Hit <span style="font-style: italic;">Run</span> and see the results in the Web View.<br>
+You can then play with the output from the Web View, you can save the
+resulted HTML file, or you can provide a different set of argument
+values and hit <span style="font-style: italic;">Run</span> again.<br>
+<br>
+<span style="font-weight: bold;"></span><img style="width: 502px; height: 412px;" alt="fig15" src="fig15.png"><br>
+Fig. Example of running Insertion Sort on an argument of type List with values produced by its corresponding random generator. <br>
+<br>
+The example above illustrates an algorithm with only one argument.
+However, if an algorithm takes multiple arguments, a separate tab will
+be created for each of the arguments.<br>
+<br>
+<span style="font-weight: bold;">Providing values for the arguments</span><br style="font-weight: bold;">
+<br>
+For each of the arguments, you will have to either provide a value
+yourself, or let the random generator do its job by selecting a few
+parameters for it. The preference selection from the menu item <span style="font-style: italic;">Options -&gt; Preferences -&gt; Arguments Input</span>
+will determine which of the two options is selected by default for all
+arguments. The random generators (specifically designed for each type
+of argument) provide some default values for their parameters, but it
+is recommended that you change these values based on your own
+requirements.<br>
+<br>
+<br>
+
+
+</body></html>

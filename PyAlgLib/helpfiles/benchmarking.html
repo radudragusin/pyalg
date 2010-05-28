@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>benchmarking</title><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body><big><span style="font-weight: bold;">Section 3. Benchmarking Tool</span><br style="font-weight: bold;">
+</big><br>
+<span style="font-weight: bold;"><a name="3.1">3.1. Overview</a></span><br>
+<br>
+You can start the Benchmarking Tool by selecting the <span style="font-style: italic;">Tool -&gt; Benchmarking</span> menu item. You will see a new window like the one in fig.1.<br>
+<br>
+<img style="width: 530px; height: 448px;" alt="fig16" src="fig16.png"><br>
+Fig.1. The Benchmarking Tool on top of the Main Window.<br>
+<br>
+The Benchmarking Tool allows you to select items from the list of
+algorithms available in the Algorithm Library and make some
+benchmarking. You can compare between the algorithms' running time, and
+you can observe how the number of times a line in the code gets
+executed changes based on different values for some parameter. <br>
+<br>
+For example, you may want to see how the line counts change for
+different values of a list length, in the case of comparing two list
+sorting algorithms. You may also want to see how the running time
+varies based on the length of the list that is to be sorted. <br>
+<br>
+<img style="width: 338px; height: 252px;" alt="fig17" src="fig17.png"><img style="width: 339px; height: 253px;" alt="fig18" src="fig18.png"><br>
+Fig.2. Examples of benchmarking results using the Benchmarking Tool on
+two sorting algorithms, Quick Sort and Insertion Sort, on 90 lists with
+lengths from 10 to 100. Leftmost image: line counts benchmarking;
+rightmost image: execution time benchmarking.<br>
+<br>
+Sometimes, you might want to obtain such a benchmarking for more than
+one argument varying in value. For example, you might want to vary both
+the number of edges and number of vertices in a graph. The Benchmarking
+Tool provides such an option, and the results will be heatmaps instead
+of 2-dimensional plots (as obtained in the images above). You can learn
+how to produce both types of images in the next section.<br>
+<br>
+<span style="font-weight: bold;"><a name="3.2">3.2. Step-by-step walkthrough</a></span><br>
+<br>
+Producing a benchmarking suite for your algorithms is quite an easy
+process. The Benchmarking Tool allows you to benchmark your own
+algorithms in just a few minutes and you have to go through only three
+steps to obtain your results. <br>
+<br>
+You can start by clicking the <span style="font-style: italic;">Next</span>
+button on the first page of the Benchmarking Tool which shows the
+welcoming message. You can navigate between the pages of the
+Benchmarking Tool by using the <span style="font-style: italic;">Back</span> and <span style="font-style: italic;">Next</span> buttons available at each step. <br>
+<br>
+<span style="font-weight: bold;">Step 1: Selecting the algorithm(s)</span><br>
+<br>
+<img style="width: 440px; height: 531px;" alt="fig19" src="fig19.png"><br>
+<br>
+The first step is to select one or more algorithms from the Algorithm
+Library. Note that you can compare only between algorithms
+that have the same types of arguments, given in the same order.
+Comparing between two sorting algorithms that take a List type as an
+arguments makes sense for the application, while comparing between a
+sorting algorithm and a tree traversal algorithms does not.<br>
+<br>
+<span style="font-weight: bold;">Step 2: Selecting the lines for the line counts benchmarking</span><br>
+<br>
+<img style="width: 440px; height: 531px;" alt="fig20" src="fig20.png"><br>
+
+<br>
+For all algorithms selected in previous step, you will now select at
+least one line per algorithm that should be used in line counts
+benchmarking. The choice for line selection should be based on what you
+have observed in the analysis performed in the Main Window, i.e. for
+example, which is the line defining best the complexity of the
+considered algorithm. <br>
+<br>
+You can select more than one line per algorithm if you want, by using the Ctrl key.<br>
+<br>
+<span style="font-weight: bold;">Step 3: Selecting a range</span><br style="font-weight: bold;">
+<br>
+<img style="width: 440px; height: 531px;" alt="fig21" src="fig21.png"><br>
+<br>
+Next step is to select the argument(s) whose values will vary during
+benchmarking and give values to those whose values will remain fixed
+during this process. These arguments are not the arguments you actually
+give to the algorithm, but rather the arguments the random generators
+for the algorithm's arguments take. <br>
+<br>
+In this example, the two list sorting algorithms selected for
+comparison take a List type argument, and the random generator for this
+type (List) takes three arguments: length of the list to be generated,
+the minimum value for its elements, and the maximum value for its
+elements. You could select any of these three arguments as the argument
+whose value should vary. The rest of the arguments will remain fixed
+during the benchmarking process. And although the arguments usually
+have default values, you might want to change them corresponding to
+your own requirements.<br>
+<br>
+You can give value ranges for at least one and at most two arguments
+(remember, arguments of the data generators corresponding to the
+algorithms' arguments). The second range is not by default visible and
+if you want to add it, you will have to click on the + button right
+next to the first range (you can reverse this action by clicking the <span style="font-style: italic;">-</span>
+button next to the second range). For one range, the results will be
+images with two-dimensional plots, while with two ranges you will
+obtain heatmaps. See also section 'Interpreting benchmark results'.<br>
+<br>
+Your choice for the argument whose values will change will influence
+the benchmarking results and their meaning. For a list sorting
+algorithm, for example, the length of the list would be a very good
+choice for the ranging argument, while changes in the maximum value of
+list elements will not produce a significant variation in the benchmark
+result.<br>
+<br>
+<span style="font-weight: bold;">Note!</span> The time it takes to
+produce the benchmark results is dependent on the range of values you
+select at this step. Thus, you might want to try a smaller range at
+first, and then play around with bigger numbers. <br>
+<br>
+<span style="font-weight: bold;">Note!</span> The time it takes to
+produce the benchmark results is also dependent on the number of
+executions of each algorithm while benchmarking. You can edit this
+number through the menu, by selecting the <span class="Apple-style-span" style="border-collapse: separate; color: rgb(0, 0, 0); font-family: 'Times New Roman'; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: medium;"><span class="Apple-style-span" style="text-align: left;"></span></span><span style="font-style: italic;">Options -&gt; Preferences -&gt; Benchmark Wizard -&gt; Number executions</span>
+menu item. The default is value 1. However, the accuracy of the
+execution time benchmarking is dependent on this number, and thus, to
+obtain more accurate results, you would want to use a bigger number,
+say 100. See also section 'Introduction' talking on the tools used in
+this application.<br>
+<br>
+<span style="font-weight: bold;">Getting the results</span><br>
+&nbsp;<br>
+After clicking the <span style="font-style: italic;">Next</span> button
+in the previous step, the final page of the Benchmarking Tool will
+appear and a progress bar will show the progress of the process
+producing the benchmark results. You might have to wait a while,
+depending on the parameters selected for benchmarking (number of
+algorithms, number of ranges, values of ranges, number of executions,
+and so on).<br>
+<br>
+<img style="width: 440px; height: 531px;" alt="fig22" src="fig22.png"> <img style="width: 440px; height: 531px;" alt="fig23" src="fig23.png"><br>
+<br>
+The two benchmarking images will be placed in a tab each. You might
+want to make this window bigger at this step, so that you can analyze
+the results in more detail. There is also the option of saving both
+images in a directory you specify. If the results are important, you
+are recommended to save them, as these will no longer be available when
+you are going to perform a different benchmarking suite with this tool.
+<br>
+<br>
+See also the next section, on interpreting the benchmark results.<br>
+<br>
+<span style="font-weight: bold;"><a name="3.3">3.3. Interpreting benchmark results</a></span><br>
+<br>
+The last image in the previous section contained the line counts
+benchmarking result for the two list sorting algorithms, several times
+mentioned throughout this chapter: Insertion Sort and Quick Sort. Line
+5 was selected for both of the algorithms. The benchmarking was done on
+two ranges: list length and maximum value, both arguments taking values
+between 10 and 100, thus producing the heatmaps depicted below.<br>
+<img style="width: 409px; height: 505px;" alt="fig24" src="fig24.png"><br>
+What you can immediately observe from these two heatmaps, each
+corresponding to an algorithm, is that, as the length of the list
+increases (the vertical 'First range' axis), the line counts increase.
+However, there is a major difference between the two heatmaps. As the
+length increases, the values of the line counts for the Insertion Sort
+algorithm increase at a higher rate than for the Quick Sort algorithm. <br>
+<br>
+In what concerns the second range, the maximum value for the list
+elements, no significant differences can be observed along the
+horizontal 'Second Range' axis. Thus, it would probably make more
+sense, for this two algorithms, to use only one ranged argument, and
+that is the list length. The result is the following plot, and you can
+see that the same observation as from the previous image is preserved.<br>
+<img style="width: 361px; height: 270px;" alt="fig17" src="fig17.png"><br>
+However, both of these images represent line counts benchmarking. The
+next two images are the corresponding results for execution time
+benchmarking. The number of execution times (that can be set through
+the <span class="Apple-style-span" style="border-collapse: separate; color: rgb(0, 0, 0); font-family: 'Times New Roman'; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: medium;"><span class="Apple-style-span" style="text-align: left;"></span></span><span style="font-style: italic;">Options -&gt; Preferences -&gt; Benchmark Wizard -&gt; Number executions</span> menu item) had value 1.<br>
+<br>
+<img style="width: 224px; height: 282px;" alt="fig25" src="fig25.png"><img style="width: 371px; height: 278px;" alt="fig18" src="fig18.png"><br>
+<br>
+With a small value for the number of executions the actual time is
+harder to approximate than with a bigger number, and you may obtain
+unwanted 'spikes' in the results. To overcome this, you can use a
+larger value for the number of executions parameter.<br>
+<br>
+
+</body></html>

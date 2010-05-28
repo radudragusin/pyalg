@@ -33,6 +33,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		self.algDir = 'algorithms'
 		self.confFilePath = os.path.join(self.algDir,'.alg.conf')
 		self.visPyDir = 'vispy'
+		self.helpFile = os.path.join('helpfiles','index.html')
 		
 		self.setupInitView()
 		
@@ -467,7 +468,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		helpDialog = QDialog(self)
 		verticalLayout = QVBoxLayout(helpDialog)
 		helpWebView = QWebView(helpDialog)
-		helpWebView.setUrl(QUrl('about:blank'))
+		helpWebView.setUrl(QUrl(self.helpFile))
 		verticalLayout.addWidget(helpWebView)
 		helpDialog.exec_()
 		pass
