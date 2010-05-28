@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>PyAlgLib Benchmarking Wizard</string>
+   <string>PyAlg Benchmarking Wizard</string>
   </property>
   <widget class="QWizardPage" name="wizardPage1">
    <attribute name="pageId">
@@ -33,8 +33,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Welcome to the PyAlgLib
-Benchmarking Wizard.
+     <string>Welcome to the PyAlg Benchmarking Wizard.
 
 This wizard helps you compare between the algorithms available in the Algorithm Library. 
 

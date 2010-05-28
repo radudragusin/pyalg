@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGui.ui'
 #
-# Created: Sat May 22 17:18:16 2010
+# Created: Fri May 28 21:05:45 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -312,7 +312,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "PyAlgLib", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "PyAlg", None, QtGui.QApplication.UnicodeUTF8))
         self.menuOptions.setTitle(QtGui.QApplication.translate("MainWindow", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.menuPreferences.setTitle(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTrace_Plot_Type.setTitle(QtGui.QApplication.translate("MainWindow", "Trace Plot Type", None, QtGui.QApplication.UnicodeUTF8))

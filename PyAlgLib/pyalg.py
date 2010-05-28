@@ -225,6 +225,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 					elName = el.strip()
 					spinBox = QSpinBox(tab)
 					spinBox.setObjectName("spinBox"+str(i)+str(j))
+					spinBox.setMaximum(9999)
 					if '=' in elName:
 						elName, elDefaultValue = elName.split('=')
 						elName, elDefaultValue = elName.strip(), elDefaultValue.strip()
@@ -453,10 +454,10 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 	def showAboutWindow(self):
 		"""Open a message box containing appplication information.
 		"""
-		QMessageBox.information(self, "About PyAlgLib",
-			"""<b>PyAlgLib</b> v %s
+		QMessageBox.information(self, "About PyAlg",
+			"""<b>PyAlg</b> v %s
 			<p>An algorithms learning platform in Python.
-			<p><a href="%s">PyAlgLib Web Site</a>
+			<p><a href="%s">PyAlg Web Site</a>
 			<p>Copyright &copy; 2010. 
 			Radu Dragusin, Paula Petcu.
 			<p>Code License: 
@@ -601,12 +602,16 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 		
 	def setNrBenchmarkExecutions(self):
 		"""Ask the user for and set the number of execution each algorithm selected in
-		the benchmark wizard should execute.
+		the benchmark wizard should execute. Number must be positive.
 		"""
 		(newNrBenchExec,reply) = QInputDialog.getInt(self,"Benchmark Wizard: Nr of executions",
 		  "Number of times each algorithm in the\nbenchmark wizard will be executed:",self.nrBenchExec)
 		if reply and self.nrBenchExec != newNrBenchExec:
-			self.nrBenchExec = newNrBenchExec
+			if newNrBenchExec > 0:
+				self.nrBenchExec = newNrBenchExec
+			else:
+				QMessageBox(QMessageBox.Warning, "Warning", "Number must be positive").exec_()
+				self.setNrBenchmarkExecutions()
 	
 	def enableSaveAction(self,ok):
 		"""Enable/disable the save action from the menu based on the state of the webView 

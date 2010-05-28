@@ -2,7 +2,7 @@
 ## Authors: Kim Lundsteen Juncher and Brian Soborg Mathiasen
 ## Insitute of Computer Science, Copenhagen University, Denmark
 ##
-## Date: 22-05-2010
+## Date: 28-05-2010
 ##
 ## list.py
 ##
@@ -10,8 +10,6 @@
 ##
 
 import random as r
-
-
 
 class List(list):
     """ inherits the built-in list container and extend with new 

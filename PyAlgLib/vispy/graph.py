@@ -2,7 +2,7 @@
 ## Authors: Kim Lundsteen Juncher and Brian Soborg Mathiasen
 ## Insitute of Computer Science, Copenhagen University, Denmark
 ##
-## Date: 22-05-2010
+## Date: 28-05-2010
 ##
 ## graph.py
 ##
@@ -10,11 +10,8 @@
 ##
 
 import random as r
-#import matplotlib.pyplot as plt
-#import networkx as nx
-import datastructure as abstract
 
-class Graph(abstract.GraphDatastructure, object):
+class Graph(object):
     """Very dynamic graph data structure, implementing basic graph functionality
     as well as methods for visualisations."""
     def __init__ (self):

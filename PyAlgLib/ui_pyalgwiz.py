@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Wed May 26 14:54:23 2010
+# Created: Fri May 28 21:05:32 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -252,9 +252,8 @@ class Ui_Wizard(object):
         QtCore.QMetaObject.connectSlotsByName(Wizard)
 
     def retranslateUi(self, Wizard):
-        Wizard.setWindowTitle(QtGui.QApplication.translate("Wizard", "PyAlgLib Benchmarking Wizard", None, QtGui.QApplication.UnicodeUTF8))
-        self.page1Label.setText(QtGui.QApplication.translate("Wizard", "Welcome to the PyAlgLib\n"
-"Benchmarking Wizard.\n"
+        Wizard.setWindowTitle(QtGui.QApplication.translate("Wizard", "PyAlg Benchmarking Wizard", None, QtGui.QApplication.UnicodeUTF8))
+        self.page1Label.setText(QtGui.QApplication.translate("Wizard", "Welcome to the PyAlg Benchmarking Wizard.\n"
 "\n"
 "This wizard helps you compare between the algorithms available in the Algorithm Library. \n"
 "\n"
