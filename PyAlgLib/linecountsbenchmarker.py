@@ -13,7 +13,7 @@ class LineCountsBenchmarker():
 	def __init__(self, filenames, funcnames, listSizes, lineSelections, algnames, imgfilename,algdir='algorithms'):
 		self.filenames, self.funcnames, self.listSizes, self.lineSelections, self.algnames, self.imgfilename, self.algdir =\
 		  filenames, funcnames, listSizes, lineSelections, algnames, imgfilename,algdir
-		self.trac = trace.Trace(count=True)
+		
 		functions = []
 		for i in range(len(filenames)):
 			filename, funcname = filenames[i], funcnames[i]
@@ -28,7 +28,8 @@ class LineCountsBenchmarker():
 		for i in range(len(self.funcnames)):
 			function = self.functions[i]
 			lineSels = self.lineSelections[i]
-
+			
+			self.trac = trace.Trace(count=True)
 			f = open('flow2.txt','w')
 			sys.stdout = f
 			self.trac.run(function+str(arguments)+')')
@@ -39,7 +40,7 @@ class LineCountsBenchmarker():
 			linecounts = {}
 			p = os.path.abspath(os.path.join(self.algdir,self.filenames[i]))
 			for count in counts:
-				if p in count:
+				if p in [os.path.abspath(count[0])]:
 					linecounts[count[1]] = counts[count]
 			for lineSel in lineSels:
 				try:

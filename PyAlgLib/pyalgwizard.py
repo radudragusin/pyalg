@@ -12,6 +12,7 @@ import os
 import os.path
 import shutil
 import sys
+import csv
 
 from linecountsbenchmarker import LineCountsBenchmarker
 from timebenchmarker import TimeBenchmarker
@@ -35,6 +36,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		
 		self.imgfilename = "htmlfiles/algPerf.svg"
 		self.imgfilename2 = "htmlfiles/algTime.svg"
+		self.csvfilename = "data.csv"
 		
 		self.connect(self, SIGNAL("currentIdChanged(int)"), self.updateWizPage)
 		self.connect(self, SIGNAL("customButtonClicked(int)"), self.saveWizResults)
@@ -213,10 +215,19 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		when navigating to the last page.
 		"""
 		rangeArgumentIndex = self.rangeElemComboBox.currentIndex()
+		rangeArgumentIndex2 = self.rangeElemComboBox2.currentIndex()
 		valuesFromTableWidget = [str(self.valuesTableWidget.item(row,1).text()).strip() \
 		  for row in range(self.valuesTableWidget.rowCount())\
-		  if row != rangeArgumentIndex]
-		prevValuesFromTableWidget = self.valuesFromTableWidget[:rangeArgumentIndex]+self.valuesFromTableWidget[rangeArgumentIndex+1:]
+		  if row != rangeArgumentIndex and (self.withTwoRanges and row!= rangeArgumentIndex2)]
+		if self.withTwoRanges:
+			if rangeArgumentIndex < rangeArgumentIndex2:
+				prevValuesFromTableWidget = self.valuesFromTableWidget[:rangeArgumentIndex]+self.valuesFromTableWidget[rangeArgumentIndex+1:rangeArgumentIndex2] +\
+				  self.valuesFromTableWidget[rangeArgumentIndex2+1:]
+			else:
+				prevValuesFromTableWidget = self.valuesFromTableWidget[:rangeArgumentIndex2]+self.valuesFromTableWidget[rangeArgumentIndex2+1:rangeArgumentIndex] +\
+				  self.valuesFromTableWidget[rangeArgumentIndex+1:]
+		else:
+			prevValuesFromTableWidget = self.valuesFromTableWidget[:rangeArgumentIndex]+self.valuesFromTableWidget[rangeArgumentIndex+1:]
 		if valuesFromTableWidget != prevValuesFromTableWidget:
 			return True
 		else:
@@ -374,7 +385,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		rangeBoundaries = (self.rangeFromSpinBox.value(), self.rangeToSpinBox.value())
 		algnames = [linesel[0] for linesel in self.lineSelections]
 		lines = [[int(sel) for sel in linesel[1]] for linesel in self.lineSelections]
-		
+
 		rangeArgumentIndex = self.rangeElemComboBox.currentIndex()
 		self.rangeArgumentType = self.algArgs[rangeArgumentIndex][1]
 		self.rangeArgumentTypeIndex = self.algArgs[rangeArgumentIndex][0]
@@ -392,6 +403,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.lineResults = []
 		self.cmpTimer = TimeBenchmarker(filenames, funcnames, rangeBoundaries, algnames, self.imgfilename2,self.parent.nrBenchExec)
 		self.timeResults = []
+		self.argsForCSVFile = []
 		self.pictureLineLabel.setPixmap(QPixmap())
 		self.pictureTimeLabel.setPixmap(QPixmap())
 		self.progressBar.setVisible(True)
@@ -462,8 +474,9 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		
 		self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
 		args = ''.join([arg+',' for arg in self.nonRangeArgs])[:-1]
+		self.argsForCSVFile.append(tuple(self.nonRangeArgs))
 		self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
-		
+
 		self.timeResults = self.timeResults + self.cmpTimer.getTimes(args)
 		self.lineResults = self.lineResults + self.cmpLines.getPerf(args)
 
@@ -518,6 +531,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 		self.lineResults = []
 		self.cmpTimer = TimeBenchmarker(filenames, funcnames, rangeBoundaries, algnames, self.imgfilename2,self.parent.nrBenchExec)
 		self.timeResults = []
+		self.argsForCSVFile = []
 		self.pictureLineLabel.setPixmap(QPixmap())
 		self.pictureTimeLabel.setPixmap(QPixmap())
 		self.progressBar.setVisible(True)
@@ -529,7 +543,7 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 					self.valuesFromTableWidget[rangeArgumentIndex] = currentValue1
 					self.valuesFromTableWidget[rangeArgumentIndex2] = currentValue2
 					self.cmpLinesAndTimeWithTwoRanges(currentValue1,currentValue2)
-					self.progressBar.setValue(rangeBoundaries2[1]*i+j)
+					self.progressBar.setValue((rangeBoundaries2[1]-rangeBoundaries2[0])*i+j)
 					QApplication.processEvents()
 				else:
 					break
@@ -607,11 +621,42 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 				box.exec_()
 				self.back()
 				return
+			if self.rangeArgumentTypeIndex != self.rangeArgumentTypeIndex2:
+				genArguments2 = [int(self.valuesFromTableWidget[j]) for j,arg in enumerate(self.algArgs) if arg[0] == self.rangeArgumentTypeIndex2]
+				genIns2 = self.parent.availableGeneratorsModules[self.parent.availableGenerators.index(self.rangeArgumentType2)]()
+				try:
+					eval('apply(genIns2.generateRandom'+self.rangeArgumentType+',genArguments2)')
+				except StandardError as detail:
+					box = QMessageBox(QMessageBox.Warning, "Warning", 
+					  "Could not run code on the given arguments. See <i>Show Details</i> for hints on the problem.")
+					box.setDetailedText(str(detail))
+					box.exec_()
+					self.back()
+					return
 		else:
 			genIns = currentValue1
-		self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
+			if self.rangeArgumentTypeIndex != self.rangeArgumentTypeIndex2:
+				genIns2 = currentValue2
+		
+		if self.rangeArgumentTypeIndex < self.rangeArgumentTypeIndex2:
+			self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
+			self.nonRangeArgs.insert(self.rangeArgumentTypeIndex2,str(genIns2))
+		elif self.rangeArgumentTypeIndex > self.rangeArgumentTypeIndex2:
+			self.nonRangeArgs.insert(self.rangeArgumentTypeIndex2,str(genIns2))
+			self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
+		else:
+			self.nonRangeArgs.insert(self.rangeArgumentTypeIndex,str(genIns))
 		args = ''.join([arg+',' for arg in self.nonRangeArgs])[:-1]
-		self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
+		self.argsForCSVFile.append(tuple(self.nonRangeArgs))
+		if self.rangeArgumentTypeIndex < self.rangeArgumentTypeIndex2:
+			self.nonRangeArgs.pop(self.rangeArgumentTypeIndex2)
+			self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
+		elif self.rangeArgumentTypeIndex > self.rangeArgumentTypeIndex2:
+			self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
+			self.nonRangeArgs.pop(self.rangeArgumentTypeIndex2)
+		else:
+			self.nonRangeArgs.pop(self.rangeArgumentTypeIndex)
+		
 		self.timeResults = self.timeResults + self.cmpTimer.getTimes(args)
 		self.lineResults = self.lineResults + self.cmpLines.getPerf(args)
 
@@ -632,6 +677,11 @@ class PyAlgWizard(QWizard, ui_pyalgwiz.Ui_Wizard):
 					  os.path.join(dirname, os.path.basename(self.imgfilename)))
 					shutil.copyfile(os.path.abspath(self.imgfilename2), 
 					  os.path.join(dirname, os.path.basename(self.imgfilename2)))
+					#open a write csv file
+					file = open(os.path.join(dirname,self.csvfilename),'w')
+					writer = csv.writer(file)
+					writer.writerows(self.argsForCSVFile)
+					file.close()
 				except StandardError as detail:
 					box = QMessageBox(QMessageBox.Warning, "Error", "Could not save files.")
 					box.setDetailedText(str(detail))

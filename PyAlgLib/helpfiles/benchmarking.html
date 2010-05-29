@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
 
+
 <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>benchmarking</title><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body><big><span style="font-weight: bold;">Section 3. Benchmarking Tool</span><br style="font-weight: bold;">
 </big><br>
 <span style="font-weight: bold;"><a name="3.1">3.1. Overview</a></span><br>
@@ -79,7 +80,10 @@ Next step is to select the argument(s) whose values will vary during
 benchmarking and give values to those whose values will remain fixed
 during this process. These arguments are not the arguments you actually
 give to the algorithm, but rather the arguments the random generators
-for the algorithm's arguments take. <br>
+for the algorithm's arguments take (This is where the <span style="font-style: italic;">generateRandom&lt;Datastructurename&gt;</span>
+method for each data structure comes into play - discussed in section
+'Adding a new data structure' - as the random generators arguments are
+actually the arguments taken by these methods). <br>
 <br>
 In this example, the two list sorting algorithms selected for
 comparison take a List type argument, and the random generator for this

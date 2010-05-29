@@ -1,6 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
 
+
+
+
 <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>mainwindow</title></head><body><big><span style="font-weight: bold;"></span></big><big style="font-weight: bold;">Section 2. Main Window</big><br>
 <br>
 <span style="font-weight: bold;"><a name="2.1">2.1. Overview</a></span><br>
@@ -273,11 +276,19 @@ the application's folder, and make sure that you respect to the
 following guide-lines: <br>
 (1) name your file &lt;<span style="font-style: italic;">datastructurename</span>&gt;<br>
 (2) name your class &lt;<span style="font-style: italic;">Datastructurename</span>&gt;<br>
-(3) include a method called generateRandom&lt;<span style="font-style: italic;">Datastructurename</span>&gt;<br>
-where <span style="font-style: italic;">datastructurename</span> is the name of your custom data structure.<br>
+(3) include a method called <span style="font-style: italic;">generateRandom</span>&lt;<span style="font-style: italic;">Datastructurename</span>&gt; that generates a random <span style="font-style: italic;">datastructurename</span>
+and takes as arguments the parameters that decide the generated data
+structure's shape or values. The arguments must be integers.<br>
+where <span style="font-style: italic;">datastructurename</span> is the name of your custom data structure.<br><br>
 Example: a file named 'list.py' containing a class named 'List' and a
-method of that class named generateRandomList with some arguments. <br>
-When you re-open the application, this data structure will be now available when adding a new algorithm.<br>
+method of that class named generateRandomList with arguments length,
+minvalue and maxvalue, that generates a random list with length, max
+and min value given by the arguments. <br>
+When you re-open the application, this data structure will be now available when adding a new algorithm, and the method called <span style="font-style: italic;">generateRandom</span>&lt;<span style="font-style: italic;">Datastructurename</span>&gt; will be used when generating data for that type of data structure.<br>
+<br>
+For more examples, you can look into the classes provided by the VisPy
+project (also used in this application), that can be found in the
+'vispy' folder.<br>
 <br>
 <span style="font-weight: bold;">Step 5: Adding the algorithm to the Algorithm Library</span><br>
 <br>
