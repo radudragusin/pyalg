@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'PyAlgGuiWiz.ui'
 #
-# Created: Fri May 28 21:05:32 2010
+# Created: Sun May 30 12:00:24 2010
 #      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -109,7 +109,7 @@ class Ui_Wizard(object):
         self.rangeTextLabel.setObjectName("rangeTextLabel")
         self.gridLayout.addWidget(self.rangeTextLabel, 0, 0, 1, 1)
         self.rangeElemComboBox = QtGui.QComboBox(self.rangeFrame)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rangeElemComboBox.sizePolicy().hasHeightForWidth())
@@ -136,7 +136,13 @@ class Ui_Wizard(object):
         self.rangeToSpinBox.setObjectName("rangeToSpinBox")
         self.gridLayout.addWidget(self.rangeToSpinBox, 0, 5, 1, 1)
         self.addNewRangeButton = QtGui.QPushButton(self.rangeFrame)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.addNewRangeButton.sizePolicy().hasHeightForWidth())
+        self.addNewRangeButton.setSizePolicy(sizePolicy)
         self.addNewRangeButton.setMinimumSize(QtCore.QSize(20, 0))
+        self.addNewRangeButton.setMaximumSize(QtCore.QSize(20, 16777215))
         self.addNewRangeButton.setObjectName("addNewRangeButton")
         self.gridLayout.addWidget(self.addNewRangeButton, 0, 6, 1, 1)
         self.verticalLayout_4.addWidget(self.rangeFrame)
@@ -150,7 +156,7 @@ class Ui_Wizard(object):
         self.rangeTextLabel2.setObjectName("rangeTextLabel2")
         self.horizontalLayout_2.addWidget(self.rangeTextLabel2)
         self.rangeElemComboBox2 = QtGui.QComboBox(self.rangeFrame2)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rangeElemComboBox2.sizePolicy().hasHeightForWidth())
@@ -177,7 +183,13 @@ class Ui_Wizard(object):
         self.rangeToSpinBox2.setObjectName("rangeToSpinBox2")
         self.horizontalLayout_2.addWidget(self.rangeToSpinBox2)
         self.removeNewRangeButton = QtGui.QPushButton(self.rangeFrame2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.removeNewRangeButton.sizePolicy().hasHeightForWidth())
+        self.removeNewRangeButton.setSizePolicy(sizePolicy)
         self.removeNewRangeButton.setMinimumSize(QtCore.QSize(20, 0))
+        self.removeNewRangeButton.setMaximumSize(QtCore.QSize(20, 16777215))
         self.removeNewRangeButton.setObjectName("removeNewRangeButton")
         self.horizontalLayout_2.addWidget(self.removeNewRangeButton)
         self.verticalLayout_4.addWidget(self.rangeFrame2)

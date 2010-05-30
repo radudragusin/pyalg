@@ -240,7 +240,7 @@ To continue, click Next.</string>
           <item row="0" column="1">
            <widget class="QComboBox" name="rangeElemComboBox">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -295,10 +295,22 @@ To continue, click Next.</string>
           </item>
           <item row="0" column="6">
            <widget class="QPushButton" name="addNewRangeButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>20</width>
               <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>16777215</height>
              </size>
             </property>
             <property name="text">
@@ -328,7 +340,7 @@ To continue, click Next.</string>
           <item>
            <widget class="QComboBox" name="rangeElemComboBox2">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -383,10 +395,22 @@ To continue, click Next.</string>
           </item>
           <item>
            <widget class="QPushButton" name="removeNewRangeButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>20</width>
               <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>20</width>
+              <height>16777215</height>
              </size>
             </property>
             <property name="text">

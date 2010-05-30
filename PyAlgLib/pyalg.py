@@ -488,7 +488,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 			self.deleteAction.setEnabled(True)
 			self.argumentsAction.setEnabled(True)
 		else:
-			self.renameAction.setEnabled(False)
+			self.renameAction.setEnabled(True)
 			self.deleteAction.setEnabled(False)
 			self.argumentsAction.setEnabled(False)
 
