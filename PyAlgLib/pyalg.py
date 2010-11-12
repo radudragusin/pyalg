@@ -667,6 +667,7 @@ class PyAlgMainWindow(QMainWindow, ui_pyalg.Ui_MainWindow):
 if __name__ == "__main__":
 	import sys
 	app = QApplication(sys.argv)
+	app.setApplicationName("PyAlg") #to suppress the error given by Phonon
 	form = PyAlgMainWindow()
 	form.show()
 	app.exec_()
